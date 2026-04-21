@@ -3,28 +3,26 @@ info:
   title: API - Fédération de Collectivités Agricoles
   description: |
     API REST pour la gestion de la fédération nationale de collectivités agricoles de Madagascar.
-
+    
     Elle couvre les fonctionnalités suivantes :
     - **A** : Ouverture d'une nouvelle collectivité
-    - **B** : Admission et gestion des membres
+    - **B** : Admission et gestion des membres (mise à jour B-2 du 21/04/2026)
     - **C** : Cotisations et paiements
     - **D** : Situation de trésorerie
     - **E** : Activités des collectivités et de la fédération
     - **F** : Assiduité des membres
-    - **G** : Statistiques
-  version: 1.0.0
+    - **G** : Statistiques des collectivités
+    - **H** : Statistiques de la fédération (nouveau)
+  version: 2.0.0
   contact:
     name: Fédération Agricole Madagascar
 
-servers:
-  - url: https://api.federation-agricole.mg/v1
-    description: Serveur de production
 
 tags:
   - name: Collectivités
     description: Gestion des collectivités agricoles (Fonctionnalité A)
   - name: Membres
-    description: Admission et gestion de  s membres (Fonctionnalité B)
+    description: Admission et gestion des membres (Fonctionnalité B)
   - name: Cotisations
     description: Cotisations et paiements (Fonctionnalité C)
   - name: Trésorerie
@@ -34,88 +32,2297 @@ tags:
   - name: Assiduité
     description: Présences aux activités (Fonctionnalité F)
   - name: Statistiques
-    description: Rapports et statistiques (Fonctionnalité G)
+    description: Rapports et statistiques des collectivités (Fonctionnalité G)
+  - name: Statistiques Fédération
+    description: Rapports et statistiques globaux de la fédération (Fonctionnalité H)
 
 # ==============================================================================
-# PATHS — chaque fichier correspond à une fonctionnalité du cahier des charges
+# PATHS
 # ==============================================================================
 paths:
 
-  # --- A : Collectivités ---
+  # ============================================================
+  # A - COLLECTIVITÉS
+  # ============================================================
+
   /collectivites:
-    $ref: './paths/A-collectivites.yaml#/collectivites'
+    get:
+      tags: [Collectivités]
+      summary: Lister toutes les collectivités
+      operationId: getCollectivites
+      parameters:
+        - name: ville
+          in: query
+          schema:
+            type: string
+          description: Filtrer par ville
+        - name: specialite
+          in: query
+          schema:
+            type: string
+          description: Filtrer par spécialité agricole
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 20
+      responses:
+        '200':
+          description: Liste des collectivités
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CollectiviteListResponse'
+
+    post:
+      tags: [Collectivités]
+      summary: Demander l'ouverture d'une nouvelle collectivité
+      description: |
+        Soumet une demande d'ouverture d'une nouvelle collectivité à la fédération.
+        
+        Conditions requises :
+        - Au moins 10 membres dont 5 avec une ancienneté ≥ 6 mois dans la fédération
+        - Les postes spécifiques (président, président adjoint, trésorier, secrétaire) doivent être pourvus
+        - L'autorisation formelle de la fédération sera délivrée après validation
+      operationId: creerCollectivite
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CollectiviteCreationRequest'
+      responses:
+        '201':
+          description: Demande d'ouverture soumise avec succès
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CollectiviteResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '422':
+          $ref: '#/components/responses/UnprocessableEntity'
+
   /collectivites/{collectiviteId}:
-    $ref: './paths/A-collectivites.yaml#/collectivitesId'
+    get:
+      tags: [Collectivités]
+      summary: Obtenir les détails d'une collectivité
+      operationId: getCollectiviteById
+      parameters:
+        - $ref: '#/components/parameters/collectiviteId'
+      responses:
+        '200':
+          description: Détails de la collectivité
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CollectiviteResponse'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+    patch:
+      tags: [Collectivités]
+      summary: Modifier les informations d'une collectivité
+      operationId: updateCollectivite
+      parameters:
+        - $ref: '#/components/parameters/collectiviteId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CollectiviteUpdateRequest'
+      responses:
+        '200':
+          description: Collectivité mise à jour
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CollectiviteResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
   /collectivites/{collectiviteId}/autorisation:
-    $ref: './paths/A-collectivites.yaml#/collectivitesAutorisation'
+    post:
+      tags: [Collectivités]
+      summary: Délivrer l'autorisation d'ouverture (fédération seulement)
+      description: Permet à la fédération d'accorder formellement l'autorisation d'ouverture d'une collectivité.
+      operationId: autoriserCollectivite
+      parameters:
+        - $ref: '#/components/parameters/collectiviteId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [autorise, commentaire]
+              properties:
+                autorise:
+                  type: boolean
+                commentaire:
+                  type: string
+      responses:
+        '200':
+          description: Décision enregistrée
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CollectiviteResponse'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
 
-  # --- B : Membres ---
+  # ============================================================
+  # B - MEMBRES
+  # ============================================================
+
   /membres:
-    $ref: './paths/B-membres.yaml#/membres'
+    get:
+      tags: [Membres]
+      summary: Lister tous les membres de la fédération
+      operationId: getMembres
+      parameters:
+        - name: collectiviteId
+          in: query
+          schema:
+            type: string
+            format: uuid
+          description: Filtrer par collectivité
+        - name: poste
+          in: query
+          schema:
+            $ref: '#/components/schemas/Poste'
+        - name: actif
+          in: query
+          schema:
+            type: boolean
+          description: Filtrer les membres actifs (non démissionnaires)
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 20
+      responses:
+        '200':
+          description: Liste des membres
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MembreListResponse'
+
+    post:
+      tags: [Membres]
+      summary: Inscrire un nouveau membre dans la fédération
+      description: |
+        ## Conditions d'admission (mise à jour B-2 du 21/04/2026)
+        
+        Un candidat doit remplir les conditions suivantes pour être admis :
+        
+        **Parrainage :**
+        - Être parrainé par **au moins 2 membres confirmés** de la fédération
+        - Le nombre de parrains issus de la collectivité cible doit être **≥ au nombre de parrains
+          issus d'autres collectivités**
+          - ✅ Cas 1 : 2 parrains de la collectivité cible → autorisé
+          - ✅ Cas 2 : 1 parrain cible + 1 parrain extérieur → autorisé
+          - ✅ Cas 3 : 3 parrains cible + 2 parrains extérieurs → autorisé
+          - ❌ Cas 4 : 0 parrain cible + 2 parrains extérieurs → refusé
+        - Pour chaque parrain, la nature de la relation avec le candidat doit être précisée
+          (ex. famille, amis, collègues)
+        
+        **Informations personnelles :** nom, prénom, date de naissance, genre, adresse, métier,
+        téléphone, email
+        
+        **Paiement :**
+        - Frais d'adhésion : **50 000 MGA** (obligatoire)
+        - Cotisations annuelles obligatoires fixées par la collectivité cible (intégralité à régler)
+      operationId: inscrireMembre
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MembreInscriptionRequest'
+      responses:
+        '201':
+          description: Membre inscrit avec succès
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MembreResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '422':
+          $ref: '#/components/responses/UnprocessableEntity'
+
   /membres/{membreId}:
-    $ref: './paths/B-membres.yaml#/membresId'
+    get:
+      tags: [Membres]
+      summary: Obtenir les détails d'un membre
+      operationId: getMembreById
+      parameters:
+        - $ref: '#/components/parameters/membreId'
+      responses:
+        '200':
+          description: Détails du membre
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MembreResponse'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+    patch:
+      tags: [Membres]
+      summary: Mettre à jour les informations personnelles d'un membre
+      operationId: updateMembre
+      parameters:
+        - $ref: '#/components/parameters/membreId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MembreUpdateRequest'
+      responses:
+        '200':
+          description: Membre mis à jour
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MembreResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
   /membres/{membreId}/collectivite:
-    $ref: './paths/B-membres.yaml#/membresCollectivite'
+    put:
+      tags: [Membres]
+      summary: Changer de collectivité
+      description: Permet à un membre de rejoindre une autre collectivité (ex. changement de ville).
+      operationId: changerCollectivite
+      parameters:
+        - $ref: '#/components/parameters/membreId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [collectiviteId, motif]
+              properties:
+                collectiviteId:
+                  type: string
+                  format: uuid
+                motif:
+                  type: string
+      responses:
+        '200':
+          description: Changement de collectivité enregistré
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MembreResponse'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '422':
+          $ref: '#/components/responses/UnprocessableEntity'
+
   /membres/{membreId}/demission:
-    $ref: './paths/B-membres.yaml#/membresDemission'
+    post:
+      tags: [Membres]
+      summary: Enregistrer la démission d'un membre
+      operationId: demissionMembre
+      parameters:
+        - $ref: '#/components/parameters/membreId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [dateDemission, motif]
+              properties:
+                dateDemission:
+                  type: string
+                  format: date
+                motif:
+                  type: string
+      responses:
+        '200':
+          description: Démission enregistrée
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MembreResponse'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
   /collectivites/{collectiviteId}/mandats:
-    $ref: './paths/B-membres.yaml#/mandats'
+    get:
+      tags: [Membres]
+      summary: Lister les mandats d'une collectivité
+      operationId: getMandats
+      parameters:
+        - $ref: '#/components/parameters/collectiviteId'
+        - name: annee
+          in: query
+          schema:
+            type: integer
+          description: Filtrer par année civile
+      responses:
+        '200':
+          description: Liste des mandats
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MandatListResponse'
 
-  # --- C : Cotisations ---
+    post:
+      tags: [Membres]
+      summary: Créer un nouveau mandat pour une collectivité
+      description: |
+        Enregistre les résultats du vote pour le nouveau mandat annuel.
+        Chaque membre ne peut occuper un poste spécifique plus de 2 fois.
+      operationId: creerMandat
+      parameters:
+        - $ref: '#/components/parameters/collectiviteId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MandatCreationRequest'
+      responses:
+        '201':
+          description: Mandat créé avec succès
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MandatResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '422':
+          $ref: '#/components/responses/UnprocessableEntity'
+
+  # ============================================================
+  # C - COTISATIONS
+  # ============================================================
+
   /collectivites/{collectiviteId}/cotisations:
-    $ref: './paths/C-cotisations.yaml#/cotisations'
+    get:
+      tags: [Cotisations]
+      summary: Lister les cotisations d'une collectivité
+      operationId: getCotisations
+      parameters:
+        - $ref: '#/components/parameters/collectiviteId'
+        - name: membreId
+          in: query
+          schema:
+            type: string
+            format: uuid
+        - name: type
+          in: query
+          schema:
+            $ref: '#/components/schemas/TypeCotisation'
+        - name: dateDebut
+          in: query
+          schema:
+            type: string
+            format: date
+        - name: dateFin
+          in: query
+          schema:
+            type: string
+            format: date
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 20
+      responses:
+        '200':
+          description: Liste des cotisations
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CotisationListResponse'
+
+    post:
+      tags: [Cotisations]
+      summary: Enregistrer un encaissement (cotisation)
+      description: |
+        Le trésorier enregistre un paiement de cotisation.
+        Un pourcentage des cotisations périodiques est automatiquement reversé à la fédération.
+      operationId: enregistrerCotisation
+      parameters:
+        - $ref: '#/components/parameters/collectiviteId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CotisationCreationRequest'
+      responses:
+        '201':
+          description: Cotisation enregistrée
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CotisationResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
   /collectivites/{collectiviteId}/cotisations/{cotisationId}:
-    $ref: './paths/C-cotisations.yaml#/cotisationsId'
+    get:
+      tags: [Cotisations]
+      summary: Obtenir les détails d'une cotisation
+      operationId: getCotisationById
+      parameters:
+        - $ref: '#/components/parameters/collectiviteId'
+        - $ref: '#/components/parameters/cotisationId'
+      responses:
+        '200':
+          description: Détails de la cotisation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CotisationResponse'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
   /federation/cotisations:
-    $ref: './paths/C-cotisations.yaml#/federationCotisations'
+    get:
+      tags: [Cotisations]
+      summary: Lister les reversements reçus par la fédération
+      operationId: getCotisationsFederation
+      parameters:
+        - name: dateDebut
+          in: query
+          schema:
+            type: string
+            format: date
+        - name: dateFin
+          in: query
+          schema:
+            type: string
+            format: date
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 20
+      responses:
+        '200':
+          description: Liste des reversements
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CotisationListResponse'
+
   /federation/taux-reversement:
-    $ref: './paths/C-cotisations.yaml#/tauxReversement'
+    get:
+      tags: [Cotisations]
+      summary: Obtenir le taux de reversement actuel à la fédération
+      operationId: getTauxReversement
+      responses:
+        '200':
+          description: Taux de reversement en vigueur
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  taux:
+                    type: number
+                    format: float
+                    example: 0.10
+                  dateEffet:
+                    type: string
+                    format: date
 
-  # --- D : Trésorerie ---
+    put:
+      tags: [Cotisations]
+      summary: Modifier le taux de reversement à la fédération
+      operationId: setTauxReversement
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [taux, dateEffet]
+              properties:
+                taux:
+                  type: number
+                  format: float
+                  minimum: 0
+                  maximum: 1
+                dateEffet:
+                  type: string
+                  format: date
+      responses:
+        '200':
+          description: Taux mis à jour
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+  # ============================================================
+  # D - TRÉSORERIE
+  # ============================================================
+
   /collectivites/{collectiviteId}/comptes:
-    $ref: './paths/D-tresorerie.yaml#/comptes'
+    get:
+      tags: [Trésorerie]
+      summary: Lister les comptes d'une collectivité
+      operationId: getComptes
+      parameters:
+        - $ref: '#/components/parameters/collectiviteId'
+        - name: type
+          in: query
+          schema:
+            $ref: '#/components/schemas/TypeCompte'
+      responses:
+        '200':
+          description: Liste des comptes
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CompteListResponse'
+
+    post:
+      tags: [Trésorerie]
+      summary: Créer un nouveau compte pour une collectivité
+      description: |
+        Crée un compte bancaire, mobile money ou caisse.
+        Contraintes :
+        - Une seule caisse par collectivité
+        - Plusieurs comptes bancaires ou mobile money autorisés
+      operationId: creerCompte
+      parameters:
+        - $ref: '#/components/parameters/collectiviteId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CompteCreationRequest'
+      responses:
+        '201':
+          description: Compte créé
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CompteResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '422':
+          $ref: '#/components/responses/UnprocessableEntity'
+
   /collectivites/{collectiviteId}/comptes/{compteId}:
-    $ref: './paths/D-tresorerie.yaml#/comptesId'
+    get:
+      tags: [Trésorerie]
+      summary: Obtenir les détails d'un compte
+      operationId: getCompteById
+      parameters:
+        - $ref: '#/components/parameters/collectiviteId'
+        - $ref: '#/components/parameters/compteId'
+      responses:
+        '200':
+          description: Détails du compte
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CompteResponse'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+    patch:
+      tags: [Trésorerie]
+      summary: Mettre à jour le solde d'un compte
+      operationId: updateSoldeCompte
+      parameters:
+        - $ref: '#/components/parameters/collectiviteId'
+        - $ref: '#/components/parameters/compteId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [solde, dateReleve]
+              properties:
+                solde:
+                  type: number
+                  format: double
+                  description: Nouveau solde en MGA
+                dateReleve:
+                  type: string
+                  format: date
+      responses:
+        '200':
+          description: Solde mis à jour
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CompteResponse'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+    delete:
+      tags: [Trésorerie]
+      summary: Supprimer un compte
+      operationId: deleteCompte
+      parameters:
+        - $ref: '#/components/parameters/collectiviteId'
+        - $ref: '#/components/parameters/compteId'
+      responses:
+        '204':
+          description: Compte supprimé
+        '404':
+          $ref: '#/components/responses/NotFound'
+
   /federation/comptes:
-    $ref: './paths/D-tresorerie.yaml#/federationComptes'
+    get:
+      tags: [Trésorerie]
+      summary: Lister les comptes de la fédération
+      operationId: getComptesFederation
+      parameters:
+        - name: type
+          in: query
+          schema:
+            $ref: '#/components/schemas/TypeCompte'
+      responses:
+        '200':
+          description: Liste des comptes de la fédération
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CompteListResponse'
+
+    post:
+      tags: [Trésorerie]
+      summary: Créer un compte pour la fédération
+      operationId: creerCompteFederation
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CompteCreationRequest'
+      responses:
+        '201':
+          description: Compte créé
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CompteResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '422':
+          $ref: '#/components/responses/UnprocessableEntity'
+
   /federation/comptes/{compteId}:
-    $ref: './paths/D-tresorerie.yaml#/federationComptesId'
+    get:
+      tags: [Trésorerie]
+      summary: Détails d'un compte de la fédération
+      operationId: getCompteFederationById
+      parameters:
+        - $ref: '#/components/parameters/compteId'
+      responses:
+        '200':
+          description: Détails du compte
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CompteResponse'
+        '404':
+          $ref: '#/components/responses/NotFound'
 
-  # --- E : Activités ---
+    patch:
+      tags: [Trésorerie]
+      summary: Mettre à jour le solde d'un compte de la fédération
+      operationId: updateSoldeCompteFederation
+      parameters:
+        - $ref: '#/components/parameters/compteId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [solde, dateReleve]
+              properties:
+                solde:
+                  type: number
+                  format: double
+                dateReleve:
+                  type: string
+                  format: date
+      responses:
+        '200':
+          description: Solde mis à jour
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CompteResponse'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+    delete:
+      tags: [Trésorerie]
+      summary: Supprimer un compte de la fédération
+      operationId: deleteCompteFederation
+      parameters:
+        - $ref: '#/components/parameters/compteId'
+      responses:
+        '204':
+          description: Compte supprimé
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  # ============================================================
+  # E - ACTIVITÉS
+  # ============================================================
+
   /collectivites/{collectiviteId}/activites:
-    $ref: './paths/E-activites.yaml#/activites'
+    get:
+      tags: [Activités]
+      summary: Lister les activités d'une collectivité
+      operationId: getActivites
+      parameters:
+        - $ref: '#/components/parameters/collectiviteId'
+        - name: type
+          in: query
+          schema:
+            $ref: '#/components/schemas/TypeActivite'
+        - name: dateDebut
+          in: query
+          schema:
+            type: string
+            format: date
+        - name: dateFin
+          in: query
+          schema:
+            type: string
+            format: date
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 20
+      responses:
+        '200':
+          description: Liste des activités
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ActiviteListResponse'
+
+    post:
+      tags: [Activités]
+      summary: Planifier une activité pour une collectivité
+      description: |
+        Planifie une activité pour la collectivité.
+        Types possibles :
+        - `ASSEMBLEE_GENERALE` : obligatoire pour tous les membres
+        - `FORMATION_JUNIOR` : obligatoire pour les membres juniors
+        - `EXCEPTIONNELLE` : présence configurable
+      operationId: planifierActivite
+      parameters:
+        - $ref: '#/components/parameters/collectiviteId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ActiviteCreationRequest'
+      responses:
+        '201':
+          description: Activité planifiée
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ActiviteResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+
   /collectivites/{collectiviteId}/activites/{activiteId}:
-    $ref: './paths/E-activites.yaml#/activitesId'
+    get:
+      tags: [Activités]
+      summary: Obtenir les détails d'une activité
+      operationId: getActiviteById
+      parameters:
+        - $ref: '#/components/parameters/collectiviteId'
+        - $ref: '#/components/parameters/activiteId'
+      responses:
+        '200':
+          description: Détails de l'activité
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ActiviteResponse'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+    patch:
+      tags: [Activités]
+      summary: Modifier une activité
+      operationId: updateActivite
+      parameters:
+        - $ref: '#/components/parameters/collectiviteId'
+        - $ref: '#/components/parameters/activiteId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ActiviteUpdateRequest'
+      responses:
+        '200':
+          description: Activité mise à jour
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ActiviteResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+    delete:
+      tags: [Activités]
+      summary: Annuler une activité
+      operationId: deleteActivite
+      parameters:
+        - $ref: '#/components/parameters/collectiviteId'
+        - $ref: '#/components/parameters/activiteId'
+      responses:
+        '204':
+          description: Activité annulée
+        '404':
+          $ref: '#/components/responses/NotFound'
+
   /federation/activites:
-    $ref: './paths/E-activites.yaml#/federationActivites'
+    get:
+      tags: [Activités]
+      summary: Lister les activités planifiées par la fédération
+      operationId: getActivitesFederation
+      parameters:
+        - name: dateDebut
+          in: query
+          schema:
+            type: string
+            format: date
+        - name: dateFin
+          in: query
+          schema:
+            type: string
+            format: date
+        - name: obligatoire
+          in: query
+          schema:
+            type: boolean
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 20
+      responses:
+        '200':
+          description: Liste des activités de la fédération
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ActiviteListResponse'
+
+    post:
+      tags: [Activités]
+      summary: Planifier une activité nationale (fédération)
+      operationId: planifierActiviteFederation
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ActiviteFederationCreationRequest'
+      responses:
+        '201':
+          description: Activité planifiée
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ActiviteResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
   /federation/activites/{activiteId}:
-    $ref: './paths/E-activites.yaml#/federationActivitesId'
+    get:
+      tags: [Activités]
+      summary: Détails d'une activité de la fédération
+      operationId: getActiviteFederationById
+      parameters:
+        - $ref: '#/components/parameters/activiteId'
+      responses:
+        '200':
+          description: Détails de l'activité
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ActiviteResponse'
+        '404':
+          $ref: '#/components/responses/NotFound'
 
-  # --- F : Assiduité ---
+    patch:
+      tags: [Activités]
+      summary: Modifier une activité de la fédération
+      operationId: updateActiviteFederation
+      parameters:
+        - $ref: '#/components/parameters/activiteId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ActiviteUpdateRequest'
+      responses:
+        '200':
+          description: Activité mise à jour
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ActiviteResponse'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+    delete:
+      tags: [Activités]
+      summary: Annuler une activité de la fédération
+      operationId: deleteActiviteFederation
+      parameters:
+        - $ref: '#/components/parameters/activiteId'
+      responses:
+        '204':
+          description: Activité annulée
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  # ============================================================
+  # F - ASSIDUITÉ
+  # ============================================================
+
   /collectivites/{collectiviteId}/activites/{activiteId}/presences:
-    $ref: './paths/F-assiduite.yaml#/presences'
-  /collectivites/{collectiviteId}/activites/{activiteId}/presences/{membreId}:
-    $ref: './paths/F-assiduite.yaml#/presencesId'
-  /federation/activites/{activiteId}/presences:
-    $ref: './paths/F-assiduite.yaml#/federationPresences'
+    get:
+      tags: [Assiduité]
+      summary: Consulter la fiche de présence d'une activité
+      operationId: getPresences
+      parameters:
+        - $ref: '#/components/parameters/collectiviteId'
+        - $ref: '#/components/parameters/activiteId'
+      responses:
+        '200':
+          description: Fiche de présence
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PresenceListResponse'
+        '404':
+          $ref: '#/components/responses/NotFound'
 
-  # --- G : Statistiques ---
+    post:
+      tags: [Assiduité]
+      summary: Enregistrer la présence d'un membre à une activité
+      description: |
+        Le secrétaire enregistre la présence ou l'absence d'un membre.
+        Un membre d'une autre collectivité peut être inscrit, mais sa présence ne
+        compte pas dans son taux d'assiduité annuel.
+      operationId: enregistrerPresence
+      parameters:
+        - $ref: '#/components/parameters/collectiviteId'
+        - $ref: '#/components/parameters/activiteId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PresenceCreationRequest'
+      responses:
+        '201':
+          description: Présence enregistrée
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PresenceResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /collectivites/{collectiviteId}/activites/{activiteId}/presences/{membreId}:
+    patch:
+      tags: [Assiduité]
+      summary: Modifier le statut de présence d'un membre
+      description: Permet de mettre à jour un statut (ex. excusé avec motif).
+      operationId: updatePresence
+      parameters:
+        - $ref: '#/components/parameters/collectiviteId'
+        - $ref: '#/components/parameters/activiteId'
+        - $ref: '#/components/parameters/membreId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PresenceUpdateRequest'
+      responses:
+        '200':
+          description: Présence mise à jour
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PresenceResponse'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /federation/activites/{activiteId}/presences:
+    get:
+      tags: [Assiduité]
+      summary: Consulter la fiche de présence d'une activité de la fédération
+      operationId: getPresencesFederation
+      parameters:
+        - $ref: '#/components/parameters/activiteId'
+      responses:
+        '200':
+          description: Fiche de présence
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PresenceListResponse'
+
+    post:
+      tags: [Assiduité]
+      summary: Enregistrer la présence à une activité de la fédération
+      operationId: enregistrerPresenceFederation
+      parameters:
+        - $ref: '#/components/parameters/activiteId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PresenceCreationRequest'
+      responses:
+        '201':
+          description: Présence enregistrée
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PresenceResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+
+  # ============================================================
+  # G - STATISTIQUES DES COLLECTIVITÉS
+  # ============================================================
+
   /collectivites/{collectiviteId}/statistiques/rapport-mensuel:
-    $ref: './paths/G-statistiques.yaml#/rapportMensuel'
+    get:
+      tags: [Statistiques]
+      summary: Rapport mensuel à soumettre à la fédération
+      description: Taux d'assiduité global et nombre de membres inscrits pour un mois donné.
+      operationId: getRapportMensuel
+      parameters:
+        - $ref: '#/components/parameters/collectiviteId'
+        - name: annee
+          in: query
+          required: true
+          schema:
+            type: integer
+            example: 2026
+        - name: mois
+          in: query
+          required: true
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 12
+            example: 4
+      responses:
+        '200':
+          description: Rapport mensuel
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RapportMensuelResponse'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
   /collectivites/{collectiviteId}/statistiques/membres:
-    $ref: './paths/G-statistiques.yaml#/statsMembres'
+    get:
+      tags: [Statistiques]
+      summary: Statistiques détaillées par membre actif
+      description: |
+        Retourne pour chaque membre actif (non démissionnaire) :
+        - Taux d'assiduité sur la période
+        - Montant d'encaissement sur la période
+        - Montant impayé potentiel sur la période
+      operationId: getStatsMembres
+      parameters:
+        - $ref: '#/components/parameters/collectiviteId'
+        - name: dateDebut
+          in: query
+          required: true
+          schema:
+            type: string
+            format: date
+          description: Début de la période d'analyse
+        - name: dateFin
+          in: query
+          required: true
+          schema:
+            type: string
+            format: date
+          description: Fin de la période d'analyse
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 20
+      responses:
+        '200':
+          description: Statistiques détaillées des membres
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatsMembresResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
   /collectivites/{collectiviteId}/statistiques/membres/{membreId}:
-    $ref: './paths/G-statistiques.yaml#/statsMembre'
+    get:
+      tags: [Statistiques]
+      summary: Statistiques individuelles d'un membre actif
+      operationId: getStatsMembre
+      parameters:
+        - $ref: '#/components/parameters/collectiviteId'
+        - $ref: '#/components/parameters/membreId'
+        - name: dateDebut
+          in: query
+          required: true
+          schema:
+            type: string
+            format: date
+        - name: dateFin
+          in: query
+          required: true
+          schema:
+            type: string
+            format: date
+      responses:
+        '200':
+          description: Statistiques du membre
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatsMembreResponse'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  # ============================================================
+  # H - STATISTIQUES DE LA FÉDÉRATION (nouveau)
+  # ============================================================
+
+  /federation/statistiques/rapport-mensuel:
+    get:
+      tags: [Statistiques Fédération]
+      summary: Rapport mensuel global de la fédération
+      description: |
+        Consolide les données de toutes les collectivités pour un mois donné.
+        
+        Contient pour chaque collectivité :
+        - Le taux d'assiduité global sur la période
+        - Le pourcentage de membres à jour dans leur cotisation
+        - Le nombre de nouveaux adhérents sur la période
+      operationId: getRapportMensuelFederation
+      parameters:
+        - name: annee
+          in: query
+          required: true
+          schema:
+            type: integer
+            example: 2026
+        - name: mois
+          in: query
+          required: true
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 12
+            example: 4
+      responses:
+        '200':
+          description: Rapport mensuel consolidé de la fédération
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RapportMensuelFederationResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+  /federation/statistiques/rapport-annuel:
+    get:
+      tags: [Statistiques Fédération]
+      summary: Rapport annuel global de la fédération
+      description: |
+        Consolide les données de toutes les collectivités pour une année complète.
+        Utilisé lors des assemblées générales annuelles pour identifier les collectivités
+        méritantes et celles nécessitant des améliorations.
+        
+        Contient pour chaque collectivité :
+        - Le taux d'assiduité global sur l'année
+        - Le pourcentage de membres à jour dans leur cotisation sur l'année
+        - Le nombre de nouveaux adhérents sur l'année
+      operationId: getRapportAnnuelFederation
+      parameters:
+        - name: annee
+          in: query
+          required: true
+          schema:
+            type: integer
+            example: 2025
+      responses:
+        '200':
+          description: Rapport annuel consolidé de la fédération
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RapportAnnuelFederationResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
   /federation/statistiques/collectivites:
-    $ref: './paths/G-statistiques.yaml#/statsCollectivites'
+    get:
+      tags: [Statistiques Fédération]
+      summary: Vue globale des rapports des collectivités sur une période
+      description: |
+        Retourne les statistiques agrégées de toutes les collectivités pour
+        une période donnée (mois ou année).
+      operationId: getStatsCollectivites
+      parameters:
+        - name: annee
+          in: query
+          required: true
+          schema:
+            type: integer
+        - name: mois
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 12
+          description: Si absent, retourne les données sur toute l'année
+      responses:
+        '200':
+          description: Statistiques globales par collectivité
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatsCollectivitesFederationResponse'
 
 # ==============================================================================
-# COMPONENTS — paramètres, réponses et schemas réutilisables
+# COMPONENTS
 # ==============================================================================
 components:
+
+  # ------------------------------------------------------------
+  # PARAMETERS
+  # ------------------------------------------------------------
   parameters:
-    $ref: './components/parameters.yaml#/parameters'
+    collectiviteId:
+      name: collectiviteId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+      description: Identifiant unique de la collectivité
+
+    membreId:
+      name: membreId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+      description: Identifiant unique du membre
+
+    cotisationId:
+      name: cotisationId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+      description: Identifiant unique de la cotisation
+
+    compteId:
+      name: compteId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+      description: Identifiant unique du compte
+
+    activiteId:
+      name: activiteId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+      description: Identifiant unique de l'activité
+
+  # ------------------------------------------------------------
+  # RESPONSES COMMUNES
+  # ------------------------------------------------------------
   responses:
-    $ref: './components/responses.yaml#/responses'
+    BadRequest:
+      description: Requête invalide (données manquantes ou incorrectes)
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+
+    NotFound:
+      description: Ressource introuvable
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+
+    Forbidden:
+      description: Action non autorisée pour ce rôle
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+
+    UnprocessableEntity:
+      description: Entité non traitable — violation d'une règle métier
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+
+  # ------------------------------------------------------------
+  # SCHEMAS
+  # ------------------------------------------------------------
   schemas:
-    $ref: './components/schemas.yaml#/schemas'
+
+    # --- Enums ---
+
+    Poste:
+      type: string
+      enum:
+        - PRESIDENT
+        - PRESIDENT_ADJOINT
+        - TRESORIER
+        - SECRETAIRE
+        - MEMBRE_CONFIRME
+        - MEMBRE_JUNIOR
+      description: Poste d'un membre dans une collectivité
+
+    Genre:
+      type: string
+      enum:
+        - MASCULIN
+        - FEMININ
+
+    TypeCotisation:
+      type: string
+      enum:
+        - MENSUELLE
+        - ANNUELLE
+        - PONCTUELLE
+
+    ModePaiement:
+      type: string
+      enum:
+        - ESPECE
+        - VIREMENT_BANCAIRE
+        - MOBILE_MONEY
+
+    TypeCompte:
+      type: string
+      enum:
+        - CAISSE
+        - BANCAIRE
+        - MOBILE_MONEY
+
+    NomBanque:
+      type: string
+      enum:
+        - BRED
+        - MCB
+        - BMOI
+        - BOA
+        - BGFI
+        - AFG
+        - ACCES_BANQUE
+        - BAOBAB
+        - SIPEM
+
+    ServiceMobileMoney:
+      type: string
+      enum:
+        - ORANGE_MONEY
+        - MVOLA
+        - AIRTEL_MONEY
+
+    TypeActivite:
+      type: string
+      enum:
+        - ASSEMBLEE_GENERALE
+        - FORMATION_JUNIOR
+        - EXCEPTIONNELLE
+
+    StatutPresence:
+      type: string
+      enum:
+        - PRESENT
+        - ABSENT
+        - EXCUSE
+
+    StatutCollectivite:
+      type: string
+      enum:
+        - EN_ATTENTE
+        - AUTORISEE
+        - REFUSEE
+
+    NatureRelation:
+      type: string
+      description: Nature de la relation entre le candidat et son parrain
+      example: FAMILLE
+      enum:
+        - FAMILLE
+        - AMIS
+        - COLLEGUES
+        - VOISINS
+        - AUTRE
+
+    # --- Collectivité ---
+
+    CollectiviteBase:
+      type: object
+      properties:
+        nom:
+          type: string
+          example: Collectivité Vakinankaratra
+        ville:
+          type: string
+          example: Antsirabe
+        specialiteAgricole:
+          type: string
+          example: Riziculture
+        dateCreation:
+          type: string
+          format: date
+
+    CollectiviteCreationRequest:
+      allOf:
+        - $ref: '#/components/schemas/CollectiviteBase'
+        - type: object
+          required: [nom, ville, specialiteAgricole, dateCreation, membresInitiaux, postesInitiaux]
+          properties:
+            membresInitiaux:
+              type: array
+              minItems: 10
+              items:
+                type: string
+                format: uuid
+              description: |
+                Liste des IDs des membres fondateurs (min. 10 membres,
+                dont au moins 5 avec une ancienneté ≥ 6 mois dans la fédération)
+            postesInitiaux:
+              $ref: '#/components/schemas/PostesMandat'
+
+    CollectiviteUpdateRequest:
+      type: object
+      properties:
+        nom:
+          type: string
+        ville:
+          type: string
+        specialiteAgricole:
+          type: string
+
+    CollectiviteResponse:
+      allOf:
+        - $ref: '#/components/schemas/CollectiviteBase'
+        - type: object
+          properties:
+            id:
+              type: string
+              format: uuid
+            numero:
+              type: string
+              description: Numéro unique de la collectivité
+            statut:
+              $ref: '#/components/schemas/StatutCollectivite'
+            nombreMembres:
+              type: integer
+
+    CollectiviteListResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/CollectiviteResponse'
+        pagination:
+          $ref: '#/components/schemas/Pagination'
+
+    # --- Membre ---
+
+    MembreBase:
+      type: object
+      properties:
+        nom:
+          type: string
+        prenom:
+          type: string
+        dateNaissance:
+          type: string
+          format: date
+        genre:
+          $ref: '#/components/schemas/Genre'
+        adresse:
+          type: string
+        metier:
+          type: string
+        telephone:
+          type: string
+          example: "+261 34 00 000 00"
+        email:
+          type: string
+          format: email
+
+    # B-2 : Parrain avec relation
+    ParrainAvecRelation:
+      type: object
+      required: [parrainId, relationAvecCandidat]
+      properties:
+        parrainId:
+          type: string
+          format: uuid
+          description: ID du membre confirmé parrain (ancienneté > 90 jours)
+        relationAvecCandidat:
+          $ref: '#/components/schemas/NatureRelation'
+
+    # B-2 : Paiement à l'inscription mis à jour (adhésion + cotisations annuelles)
+    PaiementInscription:
+      type: object
+      required: [modePaiementAdhesion, montantCotisationsAnnuelles, modePaiementCotisations]
+      properties:
+        modePaiementAdhesion:
+          type: string
+          enum:
+            - MOBILE_MONEY
+            - VIREMENT_BANCAIRE
+          description: Mode de paiement pour les frais d'adhésion (50 000 MGA, fixe)
+        montantCotisationsAnnuelles:
+          type: number
+          format: double
+          description: |
+            Montant total des cotisations annuelles imposées par la collectivité cible (MGA).
+            Ce montant est déterminé par la collectivité et doit être réglé intégralement à l'inscription.
+          example: 200000
+        modePaiementCotisations:
+          type: string
+          enum:
+            - ESPECE
+            - MOBILE_MONEY
+            - VIREMENT_BANCAIRE
+          description: Mode de paiement pour les cotisations annuelles
+
+    # B-2 : Requête d'inscription mise à jour
+    MembreInscriptionRequest:
+      allOf:
+        - $ref: '#/components/schemas/MembreBase'
+        - type: object
+          required:
+            - nom
+            - prenom
+            - dateNaissance
+            - genre
+            - adresse
+            - metier
+            - telephone
+            - email
+            - collectiviteId
+            - parrains
+            - paiement
+          properties:
+            collectiviteId:
+              type: string
+              format: uuid
+              description: ID de la collectivité cible
+            parrains:
+              type: array
+              minItems: 2
+              items:
+                $ref: '#/components/schemas/ParrainAvecRelation'
+              description: |
+                Liste des parrains (minimum 2 membres confirmés).
+                
+                Règle de majorité : le nombre de parrains issus de la collectivité cible
+                doit être supérieur ou égal au nombre de parrains issus d'autres collectivités.
+                
+                - ✅ 2 parrains cible, 0 extérieur → autorisé
+                - ✅ 1 parrain cible, 1 extérieur → autorisé
+                - ✅ 3 parrains cible, 2 extérieurs → autorisé
+                - ❌ 0 parrain cible, 2 extérieurs → refusé
+            paiement:
+              $ref: '#/components/schemas/PaiementInscription'
+
+    PaiementAdhesion:
+      type: object
+      required: [modePaiement, montant]
+      properties:
+        montant:
+          type: number
+          format: double
+          default: 50000
+          description: Frais d'adhésion en MGA (50 000 MGA)
+        modePaiement:
+          type: string
+          enum:
+            - MOBILE_MONEY
+            - VIREMENT_BANCAIRE
+
+    MembreUpdateRequest:
+      allOf:
+        - $ref: '#/components/schemas/MembreBase'
+
+    MembreResponse:
+      allOf:
+        - $ref: '#/components/schemas/MembreBase'
+        - type: object
+          properties:
+            id:
+              type: string
+              format: uuid
+            dateAdhesion:
+              type: string
+              format: date
+            collectiviteId:
+              type: string
+              format: uuid
+            poste:
+              $ref: '#/components/schemas/Poste'
+            actif:
+              type: boolean
+            dateDemission:
+              type: string
+              format: date
+              nullable: true
+
+    MembreListResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/MembreResponse'
+        pagination:
+          $ref: '#/components/schemas/Pagination'
+
+    # --- Mandat ---
+
+    PostesMandat:
+      type: object
+      required: [presidentId, presidentAdjointId, tresorierId, secretaireId]
+      properties:
+        presidentId:
+          type: string
+          format: uuid
+        presidentAdjointId:
+          type: string
+          format: uuid
+        tresorierId:
+          type: string
+          format: uuid
+        secretaireId:
+          type: string
+          format: uuid
+
+    MandatCreationRequest:
+      type: object
+      required: [annee, postes]
+      properties:
+        annee:
+          type: integer
+          description: Année civile du mandat
+          example: 2026
+        postes:
+          $ref: '#/components/schemas/PostesMandat'
+
+    MandatResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        collectiviteId:
+          type: string
+          format: uuid
+        annee:
+          type: integer
+        postes:
+          $ref: '#/components/schemas/PostesMandat'
+        dateDebut:
+          type: string
+          format: date
+        dateFin:
+          type: string
+          format: date
+
+    MandatListResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/MandatResponse'
+        pagination:
+          $ref: '#/components/schemas/Pagination'
+
+    # --- Cotisation ---
+
+    CotisationCreationRequest:
+      type: object
+      required: [membreId, type, montant, dateEncaissement, modePaiement]
+      properties:
+        membreId:
+          type: string
+          format: uuid
+        type:
+          $ref: '#/components/schemas/TypeCotisation'
+        montant:
+          type: number
+          format: double
+          description: Montant en MGA
+        dateEncaissement:
+          type: string
+          format: date
+        modePaiement:
+          $ref: '#/components/schemas/ModePaiement'
+        motif:
+          type: string
+          description: Motif requis pour les cotisations ponctuelles
+
+    CotisationResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        membreId:
+          type: string
+          format: uuid
+        collectiviteId:
+          type: string
+          format: uuid
+        type:
+          $ref: '#/components/schemas/TypeCotisation'
+        montant:
+          type: number
+          format: double
+        dateEncaissement:
+          type: string
+          format: date
+        modePaiement:
+          $ref: '#/components/schemas/ModePaiement'
+        montantReverseFederation:
+          type: number
+          format: double
+          nullable: true
+          description: Montant reversé à la fédération (pour cotisations périodiques)
+        motif:
+          type: string
+          nullable: true
+
+    CotisationListResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/CotisationResponse'
+        totalMontant:
+          type: number
+          format: double
+          description: Total des montants encaissés sur la période
+        pagination:
+          $ref: '#/components/schemas/Pagination'
+
+    # --- Compte ---
+
+    CompteCreationRequest:
+      type: object
+      required: [type]
+      properties:
+        type:
+          $ref: '#/components/schemas/TypeCompte'
+        soldeInitial:
+          type: number
+          format: double
+          default: 0
+          description: Solde initial en MGA
+        dateOuverture:
+          type: string
+          format: date
+        nomTitulaire:
+          type: string
+          description: Requis si type = BANCAIRE
+        nomBanque:
+          $ref: '#/components/schemas/NomBanque'
+        numeroBanque:
+          type: string
+          pattern: '^\d{23}$'
+          description: "Format RIB : BBBBBGGGGGCCCCCCCCCCCKKK (23 chiffres)"
+        nomTitulaireNumero:
+          type: string
+          description: Requis si type = MOBILE_MONEY
+        serviceMobileMoney:
+          $ref: '#/components/schemas/ServiceMobileMoney'
+        numeroTelephone:
+          type: string
+
+    CompteResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        type:
+          $ref: '#/components/schemas/TypeCompte'
+        solde:
+          type: number
+          format: double
+          description: Solde actuel en MGA
+        dateReleve:
+          type: string
+          format: date
+        nomTitulaire:
+          type: string
+          nullable: true
+        nomBanque:
+          allOf:
+            - $ref: '#/components/schemas/NomBanque'
+          nullable: true
+        numeroBanque:
+          type: string
+          nullable: true
+        serviceMobileMoney:
+          allOf:
+            - $ref: '#/components/schemas/ServiceMobileMoney'
+          nullable: true
+        numeroTelephone:
+          type: string
+          nullable: true
+
+    CompteListResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/CompteResponse'
+        totalSolde:
+          type: number
+          format: double
+          description: Solde total de tous les comptes en MGA
+
+    # --- Activité ---
+
+    ActiviteBase:
+      type: object
+      properties:
+        titre:
+          type: string
+        description:
+          type: string
+        type:
+          $ref: '#/components/schemas/TypeActivite'
+        dateActivite:
+          type: string
+          format: date-time
+        obligatoire:
+          type: boolean
+          default: false
+
+    ActiviteCreationRequest:
+      allOf:
+        - $ref: '#/components/schemas/ActiviteBase'
+        - type: object
+          required: [titre, type, dateActivite]
+          properties:
+            membresObligatoires:
+              type: array
+              items:
+                type: string
+                format: uuid
+              description: |
+                IDs des membres pour lesquels la présence est obligatoire.
+                Si vide et obligatoire=true, concerne tous les membres.
+
+    ActiviteFederationCreationRequest:
+      allOf:
+        - $ref: '#/components/schemas/ActiviteBase'
+        - type: object
+          required: [titre, type, dateActivite]
+          properties:
+            collectivitesInvitees:
+              type: array
+              items:
+                type: string
+                format: uuid
+              description: IDs des collectivités invitées (si vide = toutes)
+
+    ActiviteUpdateRequest:
+      type: object
+      properties:
+        titre:
+          type: string
+        description:
+          type: string
+        dateActivite:
+          type: string
+          format: date-time
+        obligatoire:
+          type: boolean
+        membresObligatoires:
+          type: array
+          items:
+            type: string
+            format: uuid
+
+    ActiviteResponse:
+      allOf:
+        - $ref: '#/components/schemas/ActiviteBase'
+        - type: object
+          properties:
+            id:
+              type: string
+              format: uuid
+            collectiviteId:
+              type: string
+              format: uuid
+              nullable: true
+            organisePar:
+              type: string
+              enum: [COLLECTIVITE, FEDERATION]
+            membresObligatoires:
+              type: array
+              items:
+                type: string
+                format: uuid
+
+    ActiviteListResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/ActiviteResponse'
+        pagination:
+          $ref: '#/components/schemas/Pagination'
+
+    # --- Présence ---
+
+    PresenceCreationRequest:
+      type: object
+      required: [membreId, statut]
+      properties:
+        membreId:
+          type: string
+          format: uuid
+        statut:
+          $ref: '#/components/schemas/StatutPresence'
+        motifAbsence:
+          type: string
+          description: Requis si statut = EXCUSE
+
+    PresenceUpdateRequest:
+      type: object
+      properties:
+        statut:
+          $ref: '#/components/schemas/StatutPresence'
+        motifAbsence:
+          type: string
+
+    PresenceResponse:
+      type: object
+      properties:
+        membreId:
+          type: string
+          format: uuid
+        activiteId:
+          type: string
+          format: uuid
+        statut:
+          $ref: '#/components/schemas/StatutPresence'
+        motifAbsence:
+          type: string
+          nullable: true
+        estMembreExterne:
+          type: boolean
+          description: Vrai si le membre appartient à une autre collectivité
+
+    PresenceListResponse:
+      type: object
+      properties:
+        activiteId:
+          type: string
+          format: uuid
+        presences:
+          type: array
+          items:
+            $ref: '#/components/schemas/PresenceResponse'
+        totalPresents:
+          type: integer
+        totalAbsents:
+          type: integer
+        totalExcuses:
+          type: integer
+
+    # --- Statistiques collectivités (G) ---
+
+    RapportMensuelResponse:
+      type: object
+      properties:
+        collectiviteId:
+          type: string
+          format: uuid
+        collectiviteNom:
+          type: string
+        annee:
+          type: integer
+        mois:
+          type: integer
+        tauxAssiduite:
+          type: number
+          format: float
+          description: Taux d'assiduité global en pourcentage (0-100)
+          example: 85.5
+        nombreMembresInscrits:
+          type: integer
+
+    StatsMembreResponse:
+      type: object
+      properties:
+        membreId:
+          type: string
+          format: uuid
+        nom:
+          type: string
+        prenom:
+          type: string
+        poste:
+          $ref: '#/components/schemas/Poste'
+        tauxAssiduite:
+          type: number
+          format: float
+          description: Taux d'assiduité sur la période (%)
+        montantEncaisse:
+          type: number
+          format: double
+          description: Total des cotisations payées sur la période (MGA)
+        montantImpaye:
+          type: number
+          format: double
+          description: Montant potentiellement impayé sur la période (MGA)
+
+    StatsMembresResponse:
+      type: object
+      properties:
+        collectiviteId:
+          type: string
+          format: uuid
+        dateDebut:
+          type: string
+          format: date
+        dateFin:
+          type: string
+          format: date
+        membres:
+          type: array
+          items:
+            $ref: '#/components/schemas/StatsMembreResponse'
+        pagination:
+          $ref: '#/components/schemas/Pagination'
+
+    # --- Statistiques fédération (H) ---
+
+    StatsCollectiviteH:
+      type: object
+      description: Statistiques d'une collectivité pour le rapport de la fédération
+      properties:
+        collectiviteId:
+          type: string
+          format: uuid
+        collectiviteNom:
+          type: string
+        collectiviteNumero:
+          type: string
+        tauxAssiduite:
+          type: number
+          format: float
+          description: Taux d'assiduité global de la collectivité sur la période (%)
+          example: 78.3
+        pourcentageMembresAJour:
+          type: number
+          format: float
+          description: |
+            Pourcentage de membres actifs à jour dans leur cotisation sur la période (%).
+            Un membre est considéré à jour s'il n'a aucun montant impayé sur la période.
+          example: 91.2
+        nombreNouveauxAdherents:
+          type: integer
+          description: Nombre de nouveaux membres inscrits sur la période
+          example: 5
+
+    RapportMensuelFederationResponse:
+      type: object
+      properties:
+        annee:
+          type: integer
+          example: 2026
+        mois:
+          type: integer
+          example: 4
+        nombreCollectivites:
+          type: integer
+          description: Nombre total de collectivités actives
+        collectivites:
+          type: array
+          items:
+            $ref: '#/components/schemas/StatsCollectiviteH'
+
+    RapportAnnuelFederationResponse:
+      type: object
+      properties:
+        annee:
+          type: integer
+          example: 2025
+        nombreCollectivites:
+          type: integer
+          description: Nombre total de collectivités actives sur l'année
+        collectivites:
+          type: array
+          items:
+            $ref: '#/components/schemas/StatsCollectiviteH'
+
+    StatsCollectivitesFederationResponse:
+      type: object
+      properties:
+        annee:
+          type: integer
+        mois:
+          type: integer
+          nullable: true
+          description: Présent si filtrage par mois, absent si vue annuelle
+        collectivites:
+          type: array
+          items:
+            $ref: '#/components/schemas/StatsCollectiviteH'
+        pagination:
+          $ref: '#/components/schemas/Pagination'
+
+    # --- Génériques ---
+
+    Pagination:
+      type: object
+      properties:
+        page:
+          type: integer
+        limit:
+          type: integer
+        total:
+          type: integer
+        totalPages:
+          type: integer
+
+    ErrorResponse:
+      type: object
+      required: [code, message]
+      properties:
+        code:
+          type: string
+          example: RESSOURCE_INTROUVABLE
+        message:
+          type: string
+          example: La collectivité demandée n'existe pas.
+        details:
+          type: array
+          items:
+            type: object
+            properties:
+              champ:
+                type: string
+              erreur:
+                type: string
