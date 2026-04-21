@@ -1,0 +1,244 @@
+# ==============================================================================
+# E - ACTIVITÉS
+# Fonctionnalité : Activités des collectivités et de la fédération
+# ==============================================================================
+
+activites:
+  get:
+    tags: [Activités]
+    summary: Lister les activités d'une collectivité
+    operationId: getActivites
+    parameters:
+      - $ref: '../components/parameters.yaml#/parameters/collectiviteId'
+      - name: type
+        in: query
+        schema:
+          $ref: '../components/schemas.yaml#/components/schemas/TypeActivite'
+      - name: dateDebut
+        in: query
+        schema:
+          type: string
+          format: date
+      - name: dateFin
+        in: query
+        schema:
+          type: string
+          format: date
+      - name: page
+        in: query
+        schema:
+          type: integer
+          default: 1
+          minimum: 1
+      - name: limit
+        in: query
+        schema:
+          type: integer
+          default: 20
+          minimum: 1
+          maximum: 100
+    responses:
+      '200':
+        description: Liste des activités
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas.yaml#/components/schemas/ActiviteListResponse'
+
+  post:
+    tags: [Activités]
+    summary: Planifier une activité pour une collectivité
+    operationId: planifierActivite
+    description: |
+      Planifie une activité pour la collectivité.
+      Types possibles :
+      - `ASSEMBLEE_GENERALE` : obligatoire pour tous les membres
+      - `FORMATION_JUNIOR` : obligatoire pour les membres juniors
+      - `EXCEPTIONNELLE` : présence configurable
+    parameters:
+      - $ref: '../components/parameters.yaml#/parameters/collectiviteId'
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '../components/schemas.yaml#/components/schemas/ActiviteCreationRequest'
+    responses:
+      '201':
+        description: Activité planifiée
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas.yaml#/components/schemas/ActiviteResponse'
+      '400':
+        $ref: '../components/responses.yaml#/responses/BadRequest'
+
+activitesId:
+  get:
+    tags: [Activités]
+    summary: Obtenir les détails d'une activité
+    operationId: getActiviteById
+    parameters:
+      - $ref: '../components/parameters.yaml#/parameters/collectiviteId'
+      - $ref: '../components/parameters.yaml#/parameters/activiteId'
+    responses:
+      '200':
+        description: Détails de l'activité
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas.yaml#/components/schemas/ActiviteResponse'
+      '404':
+        $ref: '../components/responses.yaml#/responses/NotFound'
+
+  patch:
+    tags: [Activités]
+    summary: Modifier une activité
+    operationId: updateActivite
+    parameters:
+      - $ref: '../components/parameters.yaml#/parameters/collectiviteId'
+      - $ref: '../components/parameters.yaml#/parameters/activiteId'
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '../components/schemas.yaml#/components/schemas/ActiviteUpdateRequest'
+    responses:
+      '200':
+        description: Activité mise à jour
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas.yaml#/components/schemas/ActiviteResponse'
+      '400':
+        $ref: '../components/responses.yaml#/responses/BadRequest'
+      '404':
+        $ref: '../components/responses.yaml#/responses/NotFound'
+
+  delete:
+    tags: [Activités]
+    summary: Annuler une activité
+    operationId: deleteActivite
+    parameters:
+      - $ref: '../components/parameters.yaml#/parameters/collectiviteId'
+      - $ref: '../components/parameters.yaml#/parameters/activiteId'
+    responses:
+      '204':
+        description: Activité annulée
+      '404':
+        $ref: '../components/responses.yaml#/responses/NotFound'
+
+federationActivites:
+  get:
+    tags: [Activités]
+    summary: Lister les activités planifiées par la fédération
+    operationId: getActivitesFederation
+    parameters:
+      - name: dateDebut
+        in: query
+        schema:
+          type: string
+          format: date
+      - name: dateFin
+        in: query
+        schema:
+          type: string
+          format: date
+      - name: obligatoire
+        in: query
+        schema:
+          type: boolean
+      - name: page
+        in: query
+        schema:
+          type: integer
+          default: 1
+          minimum: 1
+      - name: limit
+        in: query
+        schema:
+          type: integer
+          default: 20
+          minimum: 1
+          maximum: 100
+    responses:
+      '200':
+        description: Liste des activités de la fédération
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas.yaml#/components/schemas/ActiviteListResponse'
+
+  post:
+    tags: [Activités]
+    summary: Planifier une activité nationale (fédération)
+    operationId: planifierActiviteFederation
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '../components/schemas.yaml#/components/schemas/ActiviteFederationCreationRequest'
+    responses:
+      '201':
+        description: Activité planifiée
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas.yaml#/components/schemas/ActiviteResponse'
+      '400':
+        $ref: '../components/responses.yaml#/responses/BadRequest'
+      '403':
+        $ref: '../components/responses.yaml#/responses/Forbidden'
+
+federationActivitesId:
+  get:
+    tags: [Activités]
+    summary: Détails d'une activité de la fédération
+    operationId: getActiviteFederationById
+    parameters:
+      - $ref: '../components/parameters.yaml#/parameters/activiteId'
+    responses:
+      '200':
+        description: Détails de l'activité
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas.yaml#/components/schemas/ActiviteResponse'
+      '404':
+        $ref: '../components/responses.yaml#/responses/NotFound'
+
+  patch:
+    tags: [Activités]
+    summary: Modifier une activité de la fédération
+    operationId: updateActiviteFederation
+    parameters:
+      - $ref: '../components/parameters.yaml#/parameters/activiteId'
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '../components/schemas.yaml#/components/schemas/ActiviteUpdateRequest'
+    responses:
+      '200':
+        description: Activité mise à jour
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas.yaml#/components/schemas/ActiviteResponse'
+      '404':
+        $ref: '../components/responses.yaml#/responses/NotFound'
+
+  delete:
+    tags: [Activités]
+    summary: Annuler une activité de la fédération
+    operationId: deleteActiviteFederation
+    parameters:
+      - $ref: '../components/parameters.yaml#/parameters/activiteId'
+    responses:
+      '204':
+        description: Activité annulée
+      '404':
+        $ref: '../components/responses.yaml#/responses/NotFound'

@@ -1,0 +1,114 @@
+# ==============================================================================
+# F - ASSIDUITÉ
+# Fonctionnalité : Présences aux activités
+# ==============================================================================
+
+presences:
+  get:
+    tags: [Assiduité]
+    summary: Consulter la fiche de présence d'une activité
+    operationId: getPresences
+    parameters:
+      - $ref: '../components/parameters.yaml#/parameters/collectiviteId'
+      - $ref: '../components/parameters.yaml#/parameters/activiteId'
+    responses:
+      '200':
+        description: Fiche de présence
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas.yaml#/components/schemas/PresenceListResponse'
+      '404':
+        $ref: '../components/responses.yaml#/responses/NotFound'
+
+  post:
+    tags: [Assiduité]
+    summary: Enregistrer la présence d'un membre à une activité
+    operationId: enregistrerPresence
+    description: |
+      Le secrétaire enregistre la présence ou l'absence d'un membre.
+      Un membre d'une autre collectivité peut être inscrit, mais sa présence
+      ne compte pas dans son taux d'assiduité annuel.
+    parameters:
+      - $ref: '../components/parameters.yaml#/parameters/collectiviteId'
+      - $ref: '../components/parameters.yaml#/parameters/activiteId'
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '../components/schemas.yaml#/components/schemas/PresenceCreationRequest'
+    responses:
+      '201':
+        description: Présence enregistrée
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas.yaml#/components/schemas/PresenceResponse'
+      '400':
+        $ref: '../components/responses.yaml#/responses/BadRequest'
+      '404':
+        $ref: '../components/responses.yaml#/responses/NotFound'
+
+presencesId:
+  patch:
+    tags: [Assiduité]
+    summary: Modifier le statut de présence d'un membre
+    operationId: updatePresence
+    description: Permet de mettre à jour un statut (ex. excusé avec motif).
+    parameters:
+      - $ref: '../components/parameters.yaml#/parameters/collectiviteId'
+      - $ref: '../components/parameters.yaml#/parameters/activiteId'
+      - $ref: '../components/parameters.yaml#/parameters/membreId'
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '../components/schemas.yaml#/components/schemas/PresenceUpdateRequest'
+    responses:
+      '200':
+        description: Présence mise à jour
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas.yaml#/components/schemas/PresenceResponse'
+      '404':
+        $ref: '../components/responses.yaml#/responses/NotFound'
+
+federationPresences:
+  get:
+    tags: [Assiduité]
+    summary: Consulter la fiche de présence d'une activité de la fédération
+    operationId: getPresencesFederation
+    parameters:
+      - $ref: '../components/parameters.yaml#/parameters/activiteId'
+    responses:
+      '200':
+        description: Fiche de présence
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas.yaml#/components/schemas/PresenceListResponse'
+
+  post:
+    tags: [Assiduité]
+    summary: Enregistrer la présence à une activité de la fédération
+    operationId: enregistrerPresenceFederation
+    parameters:
+      - $ref: '../components/parameters.yaml#/parameters/activiteId'
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '../components/schemas.yaml#/components/schemas/PresenceCreationRequest'
+    responses:
+      '201':
+        description: Présence enregistrée
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas.yaml#/components/schemas/PresenceResponse'
+      '400':
+        $ref: '../components/responses.yaml#/responses/BadRequest'

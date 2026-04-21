@@ -1,0 +1,729 @@
+# ==============================================================================
+# SCHEMAS — Tous les modèles de données groupés par domaine métier
+# ==============================================================================
+components:
+  schemas:
+
+    # ============================================================
+    # GÉNÉRIQUES — Utilisés partout
+    # ============================================================
+
+    Pagination:
+      type: object
+      properties:
+        page:
+          type: integer
+        limit:
+          type: integer
+        total:
+          type: integer
+        totalPages:
+          type: integer
+
+    ErrorResponse:
+      type: object
+      required: [code, message]
+      properties:
+        code:
+          type: string
+          example: RESSOURCE_INTROUVABLE
+        message:
+          type: string
+          example: La collectivité demandée n'existe pas.
+        details:
+          type: array
+          items:
+            type: object
+            properties:
+              champ:
+                type: string
+              erreur:
+                type: string
+
+    # ============================================================
+    # ENUMS — Valeurs fixes du domaine métier
+    # ============================================================
+
+    Poste:
+      type: string
+      enum:
+        - PRESIDENT
+        - PRESIDENT_ADJOINT
+        - TRESORIER
+        - SECRETAIRE
+        - MEMBRE_CONFIRME
+        - MEMBRE_JUNIOR
+      description: Poste d'un membre dans une collectivité
+
+    Genre:
+      type: string
+      enum:
+        - MASCULIN
+        - FEMININ
+
+    StatutCollectivite:
+      type: string
+      enum:
+        - EN_ATTENTE
+        - AUTORISEE
+        - REFUSEE
+
+    TypeCotisation:
+      type: string
+      enum:
+        - MENSUELLE
+        - ANNUELLE
+        - PONCTUELLE
+
+    ModePaiement:
+      type: string
+      enum:
+        - ESPECE
+        - VIREMENT_BANCAIRE
+        - MOBILE_MONEY
+
+    TypeCompte:
+      type: string
+      enum:
+        - CAISSE
+        - BANCAIRE
+        - MOBILE_MONEY
+
+    NomBanque:
+      type: string
+      enum:
+        - BRED
+        - MCB
+        - BMOI
+        - BOA
+        - BGFI
+        - AFG
+        - ACCES_BANQUE
+        - BAOBAB
+        - SIPEM
+
+    ServiceMobileMoney:
+      type: string
+      enum:
+        - ORANGE_MONEY
+        - MVOLA
+        - AIRTEL_MONEY
+
+    TypeActivite:
+      type: string
+      enum:
+        - ASSEMBLEE_GENERALE
+        - FORMATION_JUNIOR
+        - EXCEPTIONNELLE
+
+    StatutPresence:
+      type: string
+      enum:
+        - PRESENT
+        - ABSENT
+        - EXCUSE
+
+    # ============================================================
+    # A - COLLECTIVITÉS
+    # ============================================================
+
+    CollectiviteBase:
+      type: object
+      properties:
+        nom:
+          type: string
+          example: Collectivité Vakinankaratra
+        ville:
+          type: string
+          example: Antsirabe
+        specialiteAgricole:
+          type: string
+          example: Riziculture
+        dateCreation:
+          type: string
+          format: date
+
+    CollectiviteCreationRequest:
+      allOf:
+        - $ref: '#/components/schemas/CollectiviteBase'
+        - type: object
+          required: [nom, ville, specialiteAgricole, dateCreation, membresInitiaux, postesInitiaux]
+          properties:
+            membresInitiaux:
+              type: array
+              minItems: 10
+              description: Liste des IDs des membres fondateurs (min. 10, ancienneté ≥ 6 mois)
+              items:
+                type: string
+                format: uuid
+            postesInitiaux:
+              $ref: '#/components/schemas/PostesMandat'
+
+    CollectiviteUpdateRequest:
+      type: object
+      description: Envoyer uniquement les champs à modifier.
+      properties:
+        nom:
+          type: string
+        ville:
+          type: string
+        specialiteAgricole:
+          type: string
+
+    CollectiviteResponse:
+      allOf:
+        - $ref: '#/components/schemas/CollectiviteBase'
+        - type: object
+          properties:
+            id:
+              type: string
+              format: uuid
+            numero:
+              type: string
+              description: Numéro unique lisible de la collectivité
+              example: COL-2026-001
+            statut:
+              $ref: '#/components/schemas/StatutCollectivite'
+            nombreMembres:
+              type: integer
+              description: Nombre de membres actifs (calculé automatiquement)
+
+    CollectiviteListResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/CollectiviteResponse'
+        pagination:
+          $ref: '#/components/schemas/Pagination'
+
+    # ============================================================
+    # B - MEMBRES
+    # ============================================================
+
+    MembreBase:
+      type: object
+      properties:
+        nom:
+          type: string
+        prenom:
+          type: string
+        dateNaissance:
+          type: string
+          format: date
+        genre:
+          $ref: '#/components/schemas/Genre'
+        adresse:
+          type: string
+        metier:
+          type: string
+        telephone:
+          type: string
+          example: "+261 34 00 000 00"
+        email:
+          type: string
+          format: email
+
+    PaiementAdhesion:
+      type: object
+      required: [modePaiement, montant]
+      properties:
+        montant:
+          type: number
+          format: double
+          default: 50000
+          description: Frais d'adhésion en MGA (50 000 MGA)
+        modePaiement:
+          type: string
+          enum:
+            - ESPECE
+            - MOBILE_MONEY
+            - VIREMENT_BANCAIRE
+
+    MembreInscriptionRequest:
+      allOf:
+        - $ref: '#/components/schemas/MembreBase'
+        - type: object
+          required: [nom, prenom, dateNaissance, genre, adresse, metier, telephone, email, collectiviteId, parrainId, paiement]
+          properties:
+            collectiviteId:
+              type: string
+              format: uuid
+            parrainId:
+              type: string
+              format: uuid
+              description: ID du membre confirmé parrain (ancienneté > 90 jours)
+            paiement:
+              $ref: '#/components/schemas/PaiementAdhesion'
+
+    MembreUpdateRequest:
+      allOf:
+        - $ref: '#/components/schemas/MembreBase'
+
+    MembreResponse:
+      allOf:
+        - $ref: '#/components/schemas/MembreBase'
+        - type: object
+          properties:
+            id:
+              type: string
+              format: uuid
+            dateAdhesion:
+              type: string
+              format: date
+            collectiviteId:
+              type: string
+              format: uuid
+            poste:
+              $ref: '#/components/schemas/Poste'
+            actif:
+              type: boolean
+            dateDemission:
+              type: string
+              format: date
+              nullable: true
+
+    MembreListResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/MembreResponse'
+        pagination:
+          $ref: '#/components/schemas/Pagination'
+
+    PostesMandat:
+      type: object
+      required: [presidentId, presidentAdjointId, tresorierld, secretaireId]
+      properties:
+        presidentId:
+          type: string
+          format: uuid
+        presidentAdjointId:
+          type: string
+          format: uuid
+        tresorierld:
+          type: string
+          format: uuid
+        secretaireId:
+          type: string
+          format: uuid
+
+    MandatCreationRequest:
+      type: object
+      required: [annee, postes]
+      properties:
+        annee:
+          type: integer
+          description: Année civile du mandat
+          example: 2026
+        postes:
+          $ref: '#/components/schemas/PostesMandat'
+
+    MandatResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        collectiviteId:
+          type: string
+          format: uuid
+        annee:
+          type: integer
+        postes:
+          $ref: '#/components/schemas/PostesMandat'
+        dateDebut:
+          type: string
+          format: date
+        dateFin:
+          type: string
+          format: date
+
+    MandatListResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/MandatResponse'
+        pagination:
+          $ref: '#/components/schemas/Pagination'
+
+    # ============================================================
+    # C - COTISATIONS
+    # ============================================================
+
+    CotisationCreationRequest:
+      type: object
+      required: [membreId, type, montant, dateEncaissement, modePaiement]
+      properties:
+        membreId:
+          type: string
+          format: uuid
+        type:
+          $ref: '#/components/schemas/TypeCotisation'
+        montant:
+          type: number
+          format: double
+          description: Montant en MGA
+        dateEncaissement:
+          type: string
+          format: date
+        modePaiement:
+          $ref: '#/components/schemas/ModePaiement'
+        motif:
+          type: string
+          description: Motif requis pour les cotisations ponctuelles
+
+    CotisationResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        membreId:
+          type: string
+          format: uuid
+        collectiviteId:
+          type: string
+          format: uuid
+        type:
+          $ref: '#/components/schemas/TypeCotisation'
+        montant:
+          type: number
+          format: double
+        dateEncaissement:
+          type: string
+          format: date
+        modePaiement:
+          $ref: '#/components/schemas/ModePaiement'
+        montantReverseFederation:
+          type: number
+          format: double
+          nullable: true
+          description: Montant reversé à la fédération (pour cotisations périodiques)
+        motif:
+          type: string
+          nullable: true
+
+    CotisationListResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/CotisationResponse'
+        totalMontant:
+          type: number
+          format: double
+          description: Total des montants encaissés sur la période
+        pagination:
+          $ref: '#/components/schemas/Pagination'
+
+    # ============================================================
+    # D - TRÉSORERIE
+    # ============================================================
+
+    CompteCreationRequest:
+      type: object
+      required: [type]
+      properties:
+        type:
+          $ref: '#/components/schemas/TypeCompte'
+        soldeInitial:
+          type: number
+          format: double
+          default: 0
+          description: Solde initial en MGA
+        dateOuverture:
+          type: string
+          format: date
+        nomTitulaire:
+          type: string
+          description: Requis si type = BANCAIRE
+        nomBanque:
+          $ref: '#/components/schemas/NomBanque'
+        numeroBanque:
+          type: string
+          pattern: '^\d{23}$'
+          description: "Format RIB : BBBBBGGGGGCCCCCCCCCCCKKK (23 chiffres)"
+        nomTitulaireNumero:
+          type: string
+          description: Requis si type = MOBILE_MONEY
+        serviceMobileMoney:
+          $ref: '#/components/schemas/ServiceMobileMoney'
+        numeroTelephone:
+          type: string
+
+    CompteResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        type:
+          $ref: '#/components/schemas/TypeCompte'
+        solde:
+          type: number
+          format: double
+          description: Solde actuel en MGA
+        dateReleve:
+          type: string
+          format: date
+        nomTitulaire:
+          type: string
+          nullable: true
+        nomBanque:
+          allOf:
+            - $ref: '#/components/schemas/NomBanque'
+          nullable: true
+        numeroBanque:
+          type: string
+          nullable: true
+        serviceMobileMoney:
+          allOf:
+            - $ref: '#/components/schemas/ServiceMobileMoney'
+          nullable: true
+        numeroTelephone:
+          type: string
+          nullable: true
+
+    CompteListResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/CompteResponse'
+        totalSolde:
+          type: number
+          format: double
+          description: Solde total de tous les comptes en MGA
+
+    # ============================================================
+    # E - ACTIVITÉS
+    # ============================================================
+
+    ActiviteBase:
+      type: object
+      properties:
+        titre:
+          type: string
+        description:
+          type: string
+        type:
+          $ref: '#/components/schemas/TypeActivite'
+        dateActivite:
+          type: string
+          format: date-time
+        obligatoire:
+          type: boolean
+          default: false
+
+    ActiviteCreationRequest:
+      allOf:
+        - $ref: '#/components/schemas/ActiviteBase'
+        - type: object
+          required: [titre, type, dateActivite]
+          properties:
+            membresObligatoires:
+              type: array
+              items:
+                type: string
+                format: uuid
+              description: |
+                IDs des membres pour lesquels la présence est obligatoire.
+                Si vide et obligatoire=true, concerne tous les membres.
+
+    ActiviteFederationCreationRequest:
+      allOf:
+        - $ref: '#/components/schemas/ActiviteBase'
+        - type: object
+          required: [titre, type, dateActivite]
+          properties:
+            collectivitesInvitees:
+              type: array
+              items:
+                type: string
+                format: uuid
+              description: IDs des collectivités invitées (si vide = toutes)
+
+    ActiviteUpdateRequest:
+      type: object
+      properties:
+        titre:
+          type: string
+        description:
+          type: string
+        dateActivite:
+          type: string
+          format: date-time
+        obligatoire:
+          type: boolean
+        membresObligatoires:
+          type: array
+          items:
+            type: string
+            format: uuid
+
+    ActiviteResponse:
+      allOf:
+        - $ref: '#/components/schemas/ActiviteBase'
+        - type: object
+          properties:
+            id:
+              type: string
+              format: uuid
+            collectiviteId:
+              type: string
+              format: uuid
+              nullable: true
+            organisePar:
+              type: string
+              enum: [COLLECTIVITE, FEDERATION]
+            membresObligatoires:
+              type: array
+              items:
+                type: string
+                format: uuid
+
+    ActiviteListResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/ActiviteResponse'
+        pagination:
+          $ref: '#/components/schemas/Pagination'
+
+    # ============================================================
+    # F - ASSIDUITÉ
+    # ============================================================
+
+    PresenceCreationRequest:
+      type: object
+      required: [membreId, statut]
+      properties:
+        membreId:
+          type: string
+          format: uuid
+        statut:
+          $ref: '#/components/schemas/StatutPresence'
+        motifAbsence:
+          type: string
+          description: Requis si statut = EXCUSE
+
+    PresenceUpdateRequest:
+      type: object
+      properties:
+        statut:
+          $ref: '#/components/schemas/StatutPresence'
+        motifAbsence:
+          type: string
+
+    PresenceResponse:
+      type: object
+      properties:
+        membreId:
+          type: string
+          format: uuid
+        activiteId:
+          type: string
+          format: uuid
+        statut:
+          $ref: '#/components/schemas/StatutPresence'
+        motifAbsence:
+          type: string
+          nullable: true
+        estMembreExterne:
+          type: boolean
+          description: Vrai si le membre appartient à une autre collectivité
+
+    PresenceListResponse:
+      type: object
+      properties:
+        activiteId:
+          type: string
+          format: uuid
+        presences:
+          type: array
+          items:
+            $ref: '#/components/schemas/PresenceResponse'
+        totalPresents:
+          type: integer
+        totalAbsents:
+          type: integer
+        totalExcuses:
+          type: integer
+
+    # ============================================================
+    # G - STATISTIQUES
+    # ============================================================
+
+    RapportMensuelResponse:
+      type: object
+      properties:
+        collectiviteId:
+          type: string
+          format: uuid
+        collectiviteNom:
+          type: string
+        annee:
+          type: integer
+        mois:
+          type: integer
+        tauxAssiduite:
+          type: number
+          format: float
+          description: Taux d'assiduité global en pourcentage (0-100)
+          example: 85.5
+        nombreMembresInscrits:
+          type: integer
+
+    StatsMembreResponse:
+      type: object
+      properties:
+        membreId:
+          type: string
+          format: uuid
+        nom:
+          type: string
+        prenom:
+          type: string
+        poste:
+          $ref: '#/components/schemas/Poste'
+        tauxAssiduite:
+          type: number
+          format: float
+          description: Taux d'assiduité sur la période (%)
+        montantEncaisse:
+          type: number
+          format: double
+          description: Total des cotisations payées sur la période (MGA)
+        montantImpaye:
+          type: number
+          format: double
+          description: Montant potentiellement impayé sur la période (MGA)
+
+    StatsMembresResponse:
+      type: object
+      properties:
+        collectiviteId:
+          type: string
+          format: uuid
+        dateDebut:
+          type: string
+          format: date
+        dateFin:
+          type: string
+          format: date
+        membres:
+          type: array
+          items:
+            $ref: '#/components/schemas/StatsMembreResponse'
+        pagination:
+          $ref: '#/components/schemas/Pagination'
