@@ -1,0 +1,151 @@
+# ==============================================================================
+# G - STATISTIQUES
+# Fonctionnalité : Rapports et statistiques
+# ==============================================================================
+
+rapportMensuel:
+  get:
+    tags: [Statistiques]
+    summary: Rapport mensuel à soumettre à la fédération
+    operationId: getRapportMensuel
+    description: Taux d'assiduité global et nombre de membres inscrits pour un mois donné.
+    parameters:
+      - $ref: '#/components/parameters/collectiviteId'
+      - name: annee
+        in: query
+        required: true
+        schema:
+          type: integer
+          example: 2026
+      - name: mois
+        in: query
+        required: true
+        schema:
+          type: integer
+          minimum: 1
+          maximum: 12
+          example: 4
+    responses:
+      '200':
+        description: Rapport mensuel
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RapportMensuelResponse'
+      '404':
+        $ref: '#/components/responses/NotFound'
+
+statsMembres:
+  get:
+    tags: [Statistiques]
+    summary: Statistiques détaillées par membre actif
+    operationId: getStatsMembres
+    description: |
+      Retourne pour chaque membre actif (non démissionnaire) :
+      - Taux d'assiduité sur la période
+      - Montant d'encaissement sur la période
+      - Montant impayé potentiel sur la période
+    parameters:
+      - $ref: '#/components/parameters/collectiviteId'
+      - name: dateDebut
+        in: query
+        required: true
+        schema:
+          type: string
+          format: date
+        description: Début de la période d'analyse
+      - name: dateFin
+        in: query
+        required: true
+        schema:
+          type: string
+          format: date
+        description: Fin de la période d'analyse
+      - name: page
+        in: query
+        schema:
+          type: integer
+          default: 1
+          minimum: 1
+      - name: limit
+        in: query
+        schema:
+          type: integer
+          default: 20
+          minimum: 1
+          maximum: 100
+    responses:
+      '200':
+        description: Statistiques détaillées des membres
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/StatsMembresResponse'
+      '400':
+        $ref: '#/components/responses/BadRequest'
+      '404':
+        $ref: '#/components/responses/NotFound'
+
+statsMembre:
+  get:
+    tags: [Statistiques]
+    summary: Statistiques individuelles d'un membre actif
+    operationId: getStatsMembre
+    parameters:
+      - $ref: '#/components/parameters/collectiviteId'
+      - $ref: '#/components/parameters/membreId'
+      - name: dateDebut
+        in: query
+        required: true
+        schema:
+          type: string
+          format: date
+      - name: dateFin
+        in: query
+        required: true
+        schema:
+          type: string
+          format: date
+    responses:
+      '200':
+        description: Statistiques du membre
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/StatsMembreResponse'
+      '404':
+        $ref: '#/components/responses/NotFound'
+
+statsCollectivites:
+  get:
+    tags: [Statistiques]
+    summary: Vue globale des rapports mensuels de toutes les collectivités
+    operationId: getStatsCollectivites
+    parameters:
+      - name: annee
+        in: query
+        required: true
+        schema:
+          type: integer
+      - name: mois
+        in: query
+        schema:
+          type: integer
+          minimum: 1
+          maximum: 12
+    responses:
+      '200':
+        description: Statistiques globales
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                annee:
+                  type: integer
+                mois:
+                  type: integer
+                collectivites:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/RapportMensuelResponse'

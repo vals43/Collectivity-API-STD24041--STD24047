@@ -1,0 +1,226 @@
+# ==============================================================================
+# B - MEMBRES
+# Fonctionnalité : Admission et gestion des membres
+# ==============================================================================
+
+membres:
+  get:
+    tags: [Membres]
+    summary: Lister tous les membres de la fédération
+    operationId: getMembres
+    parameters:
+      - name: collectiviteId
+        in: query
+        schema:
+          type: string
+          format: uuid
+        description: Filtrer par collectivité
+      - name: poste
+        in: query
+        schema:
+          $ref: '#/components/schemas/Poste'
+      - name: actif
+        in: query
+        schema:
+          type: boolean
+        description: Filtrer les membres actifs (non démissionnaires)
+      - name: page
+        in: query
+        schema:
+          type: integer
+          default: 1
+          minimum: 1
+      - name: limit
+        in: query
+        schema:
+          type: integer
+          default: 20
+          minimum: 1
+          maximum: 100
+    responses:
+      '200':
+        description: Liste des membres
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas.yaml#/components/schemas/MembreListResponse'
+
+  post:
+    tags: [Membres]
+    summary: Inscrire un nouveau membre dans la fédération
+    operationId: inscrireMembre
+    description: |
+      Permet d'inscrire un nouveau membre dans la fédération.
+
+      Conditions requises :
+      - Être parrainé par un membre confirmé avec ancienneté > 90 jours
+      - Fournir toutes les informations personnelles
+      - Régler un frais d'adhésion de 50 000 MGA (mobile money ou virement bancaire)
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '../components/schemas.yaml#/components/schemas/MembreInscriptionRequest'
+    responses:
+      '201':
+        description: Membre inscrit avec succès
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas.yaml#/components/schemas/MembreResponse'
+      '400':
+        $ref: '#/components/responses/BadRequest'
+      '422':
+        $ref: '#/components/responses/UnprocessableEntity'
+
+membresId:
+  get:
+    tags: [Membres]
+    summary: Obtenir les détails d'un membre
+    operationId: getMembreById
+    parameters:
+      - $ref: '#/components/parameters/membreId'
+    responses:
+      '200':
+        description: Détails du membre
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas.yaml#/components/schemas/MembreResponse'
+      '404':
+        $ref: '#/components/responses/NotFound'
+
+  patch:
+    tags: [Membres]
+    summary: Mettre à jour les informations personnelles d'un membre
+    operationId: updateMembre
+    parameters:
+      - $ref: '#/components/parameters/membreId'
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '../components/schemas.yaml#/components/schemas/MembreUpdateRequest'
+    responses:
+      '200':
+        description: Membre mis à jour
+        content:
+          application/json:
+            schema:
+              $ref: '#../components/schemas.yaml#/components/schemas/MembreResponse'
+      '400':
+        $ref: '#/components/responses/BadRequest'
+      '404':
+        $ref: '#/components/responses/NotFound'
+
+membresCollectivite:
+  put:
+    tags: [Membres]
+    summary: Changer de collectivité
+    operationId: changerCollectivite
+    description: Permet à un membre de rejoindre une autre collectivité (ex. changement de ville).
+    parameters:
+      - $ref: '#/components/parameters/membreId'
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            required: [collectiviteId, motif]
+            properties:
+              collectiviteId:
+                type: string
+                format: uuid
+              motif:
+                type: string
+    responses:
+      '200':
+        description: Changement de collectivité enregistré
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MembreResponse'
+      '404':
+        $ref: '#/components/responses/NotFound'
+      '422':
+        $ref: '#/components/responses/UnprocessableEntity'
+
+membresDemission:
+  post:
+    tags: [Membres]
+    summary: Enregistrer la démission d'un membre
+    operationId: demissionMembre
+    parameters:
+      - $ref: '#/components/parameters/membreId'
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            required: [dateDemission, motif]
+            properties:
+              dateDemission:
+                type: string
+                format: date
+              motif:
+                type: string
+    responses:
+      '200':
+        description: Démission enregistrée
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MembreResponse'
+      '404':
+        $ref: '#/components/responses/NotFound'
+
+mandats:
+  get:
+    tags: [Membres]
+    summary: Lister les mandats d'une collectivité
+    operationId: getMandats
+    parameters:
+      - $ref: '#/components/parameters/collectiviteId'
+      - name: annee
+        in: query
+        schema:
+          type: integer
+        description: Filtrer par année civile
+    responses:
+      '200':
+        description: Liste des mandats
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MandatListResponse'
+
+  post:
+    tags: [Membres]
+    summary: Créer un nouveau mandat pour une collectivité
+    operationId: creerMandat
+    description: |
+      Enregistre les résultats du vote pour le nouveau mandat annuel.
+      Chaque membre ne peut occuper un poste spécifique plus de 2 fois.
+    parameters:
+      - $ref: '#/components/parameters/collectiviteId'
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/MandatCreationRequest'
+    responses:
+      '201':
+        description: Mandat créé avec succès
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MandatResponse'
+      '400':
+        $ref: '#/components/responses/BadRequest'
+      '422':
+        $ref: '#/components/responses/UnprocessableEntity'

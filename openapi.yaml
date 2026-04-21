@@ -1,0 +1,122 @@
+openapi: 3.0.3
+info:
+  title: API - Fédération de Collectivités Agricoles
+  description: |
+    API REST pour la gestion de la fédération nationale de collectivités agricoles de Madagascar.
+
+    Elle couvre les fonctionnalités suivantes :
+    - **A** : Ouverture d'une nouvelle collectivité
+    - **B** : Admission et gestion des membres
+    - **C** : Cotisations et paiements
+    - **D** : Situation de trésorerie
+    - **E** : Activités des collectivités et de la fédération
+    - **F** : Assiduité des membres
+    - **G** : Statistiques
+  version: 1.0.0
+  contact:
+    name: Fédération Agricole Madagascar
+
+servers:
+  - url: 
+
+tags:
+  - name: Collectivités
+    description: Gestion des collectivités agricoles (Fonctionnalité A)
+  - name: Membres
+    description: Admission et gestion des membres (Fonctionnalité B)
+  - name: Cotisations
+    description: Cotisations et paiements (Fonctionnalité C)
+  - name: Trésorerie
+    description: Comptes et situation financière (Fonctionnalité D)
+  - name: Activités
+    description: Activités des collectivités et de la fédération (Fonctionnalité E)
+  - name: Assiduité
+    description: Présences aux activités (Fonctionnalité F)
+  - name: Statistiques
+    description: Rapports et statistiques (Fonctionnalité G)
+
+# ==============================================================================
+# PATHS — chaque fichier correspond à une fonctionnalité du cahier des charges
+# ==============================================================================
+paths:
+
+  # --- A : Collectivités ---
+  /collectivites:
+    $ref: './paths/A-collectivites.yaml#/collectivites'
+  /collectivites/{collectiviteId}:
+    $ref: './paths/A-collectivites.yaml#/collectivitesId'
+  /collectivites/{collectiviteId}/autorisation:
+    $ref: './paths/A-collectivites.yaml#/collectivitesAutorisation'
+
+  # --- B : Membres ---
+  /membres:
+    $ref: './paths/B-membres.yaml#/membres'
+  /membres/{membreId}:
+    $ref: './paths/B-membres.yaml#/membresId'
+  /membres/{membreId}/collectivite:
+    $ref: './paths/B-membres.yaml#/membresCollectivite'
+  /membres/{membreId}/demission:
+    $ref: './paths/B-membres.yaml#/membresDemission'
+  /collectivites/{collectiviteId}/mandats:
+    $ref: './paths/B-membres.yaml#/mandats'
+
+  # --- C : Cotisations ---
+  /collectivites/{collectiviteId}/cotisations:
+    $ref: './paths/C-cotisations.yaml#/cotisations'
+  /collectivites/{collectiviteId}/cotisations/{cotisationId}:
+    $ref: './paths/C-cotisations.yaml#/cotisationsId'
+  /federation/cotisations:
+    $ref: './paths/C-cotisations.yaml#/federationCotisations'
+  /federation/taux-reversement:
+    $ref: './paths/C-cotisations.yaml#/tauxReversement'
+
+  # --- D : Trésorerie ---
+  /collectivites/{collectiviteId}/comptes:
+    $ref: './paths/D-tresorerie.yaml#/comptes'
+  /collectivites/{collectiviteId}/comptes/{compteId}:
+    $ref: './paths/D-tresorerie.yaml#/comptesId'
+  /federation/comptes:
+    $ref: './paths/D-tresorerie.yaml#/federationComptes'
+  /federation/comptes/{compteId}:
+    $ref: './paths/D-tresorerie.yaml#/federationComptesId'
+
+  # --- E : Activités ---
+  /collectivites/{collectiviteId}/activites:
+    $ref: './paths/E-activites.yaml#/activites'
+  /collectivites/{collectiviteId}/activites/{activiteId}:
+    $ref: './paths/E-activites.yaml#/activitesId'
+  /federation/activites:
+    $ref: './paths/E-activites.yaml#/federationActivites'
+  /federation/activites/{activiteId}:
+    $ref: './paths/E-activites.yaml#/federationActivitesId'
+
+  # --- F : Assiduité ---
+  /collectivites/{collectiviteId}/activites/{activiteId}/presences:
+    $ref: './paths/F-assiduite.yaml#/presences'
+  /collectivites/{collectiviteId}/activites/{activiteId}/presences/{membreId}:
+    $ref: './paths/F-assiduite.yaml#/presencesId'
+  /federation/activites/{activiteId}/presences:
+    $ref: './paths/F-assiduite.yaml#/federationPresences'
+
+  # --- G : Statistiques ---
+  /collectivites/{collectiviteId}/statistiques/rapport-mensuel:
+    $ref: './paths/G-statistiques.yaml#/rapportMensuel'
+  /collectivites/{collectiviteId}/statistiques/membres:
+    $ref: './paths/G-statistiques.yaml#/statsMembres'
+  /collectivites/{collectiviteId}/statistiques/membres/{membreId}:
+    $ref: './paths/G-statistiques.yaml#/statsMembre'
+  /federation/statistiques/collectivites:
+    $ref: './paths/G-statistiques.yaml#/statsCollectivites'
+
+# ==============================================================================
+# COMPONENTS — paramètres, réponses et schemas réutilisables
+# ==============================================================================
+components:
+  parameters:
+    $ref: './components/parameters.yaml#/parameters'
+
+  responses:
+    $ref: './components/responses.yaml#/responses'
+
+  schemas:
+    $ref: './components/schemas.yaml#/schemas'
