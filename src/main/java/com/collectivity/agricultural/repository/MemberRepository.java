@@ -1,8 +1,12 @@
 package com.collectivity.agricultural.repository;
 
 
+import com.collectivity.agricultural.entity.Collectivity;
 import com.collectivity.agricultural.entity.Member;
+import com.collectivity.agricultural.entity.MemberCollectivity;
 import com.collectivity.agricultural.entity.dto.CreateMember;
+import com.collectivity.agricultural.entity.enums.CollectivityOccupation;
+import com.collectivity.agricultural.entity.enums.Gender;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Repository;
 
@@ -101,7 +105,7 @@ public class MemberRepository {
         }
     }
 
-    public List<Member> saveAll(List<Member> members, List<MemberCreateMember> dtos) {
+    public List<Member> saveAll(List<Member> members, List<CreateMember> dtos) {
 
         String insertMemberSql = """
         INSERT INTO member(
