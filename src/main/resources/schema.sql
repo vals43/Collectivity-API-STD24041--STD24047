@@ -14,24 +14,30 @@ CREATE TABLE collectivities (
 
 -- 3. Table des MEMBRES
 CREATE TABLE members (
-                         id VARCHAR(50) PRIMARY KEY,
-                         first_name VARCHAR(100) NOT NULL,
-                         last_name VARCHAR(100) NOT NULL,
-                         birth_date DATE NOT NULL,
-                         gender gender_type NOT NULL,
-                         address TEXT,
-                         profession VARCHAR(100),
-                         phone_number VARCHAR(20),
-                         email VARCHAR(100) UNIQUE,
-                         occupation occupation_type NOT NULL,
-                         adhesion_date DATE NOT NULL DEFAULT CURRENT_DATE,
-                         collectivity_id VARCHAR(50),
-                         CONSTRAINT fk_collectivity
-                             FOREIGN KEY (collectivity_id)
-                                 REFERENCES collectivities(id)
-                                 ON DELETE SET NULL
-);
+                         id                               serial          PRIMARY KEY DEFAULT gen_random_uuid(),
+                         last_name                        VARCHAR(255)  NOT NULL,
+                         first_name                       VARCHAR(255)  NOT NULL,
+                         birth_date                       DATE          NOT NULL,
+                         gender                           gender_type   NOT NULL,
+                         address                          TEXT          NOT NULL,
+                         occupation                       VARCHAR(255)  NOT NULL,
+                         phone                            VARCHAR(50)   NOT NULL,
+                         email                            VARCHAR(255)  NOT NULL UNIQUE,
+                         membership_date                  DATE          NOT NULL,
+                         community_id                     serial          NOT NULL REFERENCES communities(id),
+                         position                         position_type NOT NULL DEFAULT 'JUNIOR_MEMBER',
+                         active                           BOOLEAN       NOT NULL DEFAULT TRUE,
+                         resignation_date                 DATE,
+                         registration_fee_paid            NUMERIC(15,2) NOT NULL DEFAULT 50000,
+                         registration_annual_contribution NUMERIC(15,2) NOT NULL DEFAULT 0,
+                         registration_payment_method      payment_method NOT NULL DEFAULT 'MOBILE_MONEY',
+                         registration_payment_date        DATE          NOT NULL DEFAULT CURRENT_DATE,
+                         created_at                       TIMESTAMP     NOT NULL DEFAULT NOW(),
+                         updated_at                       TIMESTAMP     NOT NULL DEFAULT NOW(),
 
+                         CONSTRAINT chk_registration_payment_method
+                             CHECK (registration_payment_method IN ('MOBILE_MONEY', 'BANK_TRANSFER'))
+);
 -- 4. Table de PARRAINAGE (Relation N:N)
 -- Nature de la relation exigée pour le point B-2
 CREATE TABLE member_referees (
