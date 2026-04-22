@@ -1,14 +1,13 @@
-package com.collectivity.agricultural.entity.dto;
+package com.collectivity.agricultural.model.dto;
 
-import com.collectivity.agricultural.entity.enums.Gender;
-import com.collectivity.agricultural.entity.enums.CollectivityOccupation;
+import com.collectivity.agricultural.model.enums.Gender;
+import com.collectivity.agricultural.model.enums.CollectivityOccupation;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
-import java.util.Date;
 import java.util.List;
 
 

@@ -4,7 +4,17 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
+<<<<<<< HEAD
     <list default="true" id="f0dc108f-098e-4247-a511-b6aa2231895e" name="Changes" comment="" />
+=======
+    <list default="true" id="f0dc108f-098e-4247-a511-b6aa2231895e" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/collectivity/agricultural/controller/CollectivityController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/collectivity/agricultural/controller/CollectivityController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/collectivity/agricultural/controller/FederationController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/collectivity/agricultural/controller/FederationController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/collectivity/agricultural/entity/Collectivity.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/collectivity/agricultural/entity/Collectivity.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/collectivity/agricultural/repository/CollectivityRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/collectivity/agricultural/repository/CollectivityRepository.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/collectivity/agricultural/service/CollectivityService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/collectivity/agricultural/service/CollectivityService.java" afterDir="false" />
+    </list>
+>>>>>>> 23c1d0ad64a642db2051f91abe7f9e42296ba3c9
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -111,6 +121,13 @@
       <option name="launchJavascriptDebuger" value="false" />
       <method v="2" />
     </configuration>
+    <configuration name="AgriculturalApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" nameIsGenerated="true">
+      <module name="agricultural" />
+      <option name="SPRING_BOOT_MAIN_CLASS" value="com.collectivity.agricultural.AgriculturalApplication" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
     <configuration default="true" type="Tox" factoryName="Tox">
       <module name="OAS Collectivité" />
       <option name="ENV_FILES" value="" />
@@ -123,13 +140,6 @@
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
       <method v="2" />
-    </configuration>
-    <configuration name="AgriculturalApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" nameIsGenerated="true">
-      <module name="agricultural" />
-      <option name="SPRING_BOOT_MAIN_CLASS" value="com.collectivity.agricultural.AgriculturalApplication" />
-      <method v="2">
-        <option name="Make" enabled="true" />
-      </method>
     </configuration>
   </component>
   <component name="SharedIndexes">

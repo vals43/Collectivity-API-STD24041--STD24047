@@ -1,7 +1,7 @@
-package com.collectivity.agricultural.entity;
+package com.collectivity.agricultural.model;
 
 
-import com.collectivity.agricultural.entity.enums.CollectivityOccupation;
+import com.collectivity.agricultural.model.enums.CollectivityOccupation;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;

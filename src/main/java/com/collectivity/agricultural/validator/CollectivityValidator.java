@@ -1,8 +1,8 @@
 package com.collectivity.agricultural.validator;
 
-import com.collectivity.agricultural.entity.Member;
-import com.collectivity.agricultural.entity.dto.CreateCollectivity;
-import com.collectivity.agricultural.entity.dto.CreateStructure;
+import com.collectivity.agricultural.model.Member;
+import com.collectivity.agricultural.model.dto.CreateCollectivity;
+import com.collectivity.agricultural.model.dto.CreateStructure;
 import com.collectivity.agricultural.exception.NotFoundException;
 import com.collectivity.agricultural.repository.MemberRepository;
 import lombok.AllArgsConstructor;

@@ -1,7 +1,7 @@
 package com.collectivity.agricultural.validator;
 
 
-import com.collectivity.agricultural.entity.dto.CreateMember;
+import com.collectivity.agricultural.model.dto.CreateMember;
 import com.collectivity.agricultural.exception.InsufficientSponsorCount;
 import org.springframework.stereotype.Component;
 

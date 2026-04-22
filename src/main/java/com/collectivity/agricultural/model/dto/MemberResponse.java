@@ -1,6 +1,6 @@
-package com.collectivity.agricultural.entity.dto;
+package com.collectivity.agricultural.model.dto;
 
-import com.collectivity.agricultural.entity.enums.Gender;
+import com.collectivity.agricultural.model.enums.Gender;
 import lombok.Builder;
 import lombok.Data;
 

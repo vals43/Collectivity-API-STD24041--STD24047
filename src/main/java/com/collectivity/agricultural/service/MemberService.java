@@ -1,8 +1,8 @@
 package com.collectivity.agricultural.service;
 
-import com.collectivity.agricultural.entity.Member;
-import com.collectivity.agricultural.entity.dto.CreateMember;
-import com.collectivity.agricultural.entity.dto.MemberResponse;
+import com.collectivity.agricultural.model.Member;
+import com.collectivity.agricultural.model.dto.CreateMember;
+import com.collectivity.agricultural.model.dto.MemberResponse;
 import com.collectivity.agricultural.repository.MemberRepository;
 import com.collectivity.agricultural.validator.CollectivityRuleValidator;
 import com.collectivity.agricultural.validator.PaymentValidator;

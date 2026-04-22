@@ -1,7 +1,7 @@
 package com.collectivity.agricultural.service;
 
 
-import com.collectivity.agricultural.entity.Federation;
+import com.collectivity.agricultural.model.Federation;
 import com.collectivity.agricultural.exception.NotFoundException;
 import com.collectivity.agricultural.repository.FederationRepository;
 import lombok.AllArgsConstructor;

@@ -1,6 +1,6 @@
 package com.collectivity.agricultural.controller;
 
-import com.collectivity.agricultural.entity.dto.CreateMember;
+import com.collectivity.agricultural.model.dto.CreateMember;
 import com.collectivity.agricultural.exception.InsufficientSponsorCount;
 import com.collectivity.agricultural.exception.NotFoundException;
 import com.collectivity.agricultural.exception.PaymentException;

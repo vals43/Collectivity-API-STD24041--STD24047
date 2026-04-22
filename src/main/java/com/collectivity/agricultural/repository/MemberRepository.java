@@ -1,12 +1,12 @@
 package com.collectivity.agricultural.repository;
 
 
-import com.collectivity.agricultural.entity.Collectivity;
-import com.collectivity.agricultural.entity.Member;
-import com.collectivity.agricultural.entity.MemberCollectivity;
-import com.collectivity.agricultural.entity.dto.CreateMember;
-import com.collectivity.agricultural.entity.enums.CollectivityOccupation;
-import com.collectivity.agricultural.entity.enums.Gender;
+import com.collectivity.agricultural.model.Collectivity;
+import com.collectivity.agricultural.model.Member;
+import com.collectivity.agricultural.model.MemberCollectivity;
+import com.collectivity.agricultural.model.dto.CreateMember;
+import com.collectivity.agricultural.model.enums.CollectivityOccupation;
+import com.collectivity.agricultural.model.enums.Gender;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Repository;
 
@@ -232,7 +232,7 @@ public class MemberRepository {
                 .speciality(rs.getString("speciality"))
                 .authorizationDate(
                         rs.getTimestamp("authorization_date") != null
-                                ? rs.getTimestamp("authorization_date").toInstant()
+                                ? java.util.Date.from(rs.getTimestamp("authorization_date").toInstant())
                                 : null
                 )
                 .location(rs.getString("location"))

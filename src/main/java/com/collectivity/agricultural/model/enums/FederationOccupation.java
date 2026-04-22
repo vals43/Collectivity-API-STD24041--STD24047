@@ -1,4 +1,4 @@
-package com.collectivity.agricultural.entity.enums;
+package com.collectivity.agricultural.model.enums;
 
 public enum FederationOccupation {
     SECRETARY,

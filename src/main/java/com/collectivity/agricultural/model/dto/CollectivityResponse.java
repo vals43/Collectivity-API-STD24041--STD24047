@@ -1,7 +1,7 @@
-package com.collectivity.agricultural.entity.dto;
+package com.collectivity.agricultural.model.dto;
 
-import com.collectivity.agricultural.entity.Member;
-import com.collectivity.agricultural.entity.Structure;
+import com.collectivity.agricultural.model.Member;
+import com.collectivity.agricultural.model.Structure;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
