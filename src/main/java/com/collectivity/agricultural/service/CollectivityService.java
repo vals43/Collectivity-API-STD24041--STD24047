@@ -7,18 +7,44 @@ import com.collectivity.agricultural.repository.CollectivityRepository;
 import com.collectivity.agricultural.validator.CollectivityValidator;
 import lombok.AllArgsConstructor;
 import org.apache.coyote.BadRequestException;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
 @Service
 @AllArgsConstructor
 public class CollectivityService {
+    @Autowired
     private final CollectivityRepository repository;
     private final CollectivityValidator validator;
+
+    // J question
+    public Collectivity assignIdentity(Integer id, String newNumber, String newName) {
+        // Récupération de l'état actuel
+        Collectivity collectivity = repository.findById(id);
+        if (collectivity == null) {
+            throw new RuntimeException("Collectivité introuvable ID: " + id);
+        }
+
+        if (collectivity.getNumber() != null || collectivity.getName() != null) {
+            // Cette exception doit retourner un 403 (Forbidden)
+            throw new IllegalStateException("L'identité est déjà fixée et ne peut plus être modifiée.");
+        }
+
+        if (repository.existsByName(newName)) {
+            // Cette exception doit retourner un 400 (Bad Request)
+            throw new IllegalArgumentException("Le nom '" + newName + "' est déjà utilisé.");
+        }
+
+        repository.updateIdentity(id, newNumber, newName);
+
+        return repository.findById(id);
+    }
 
     public List<CollectivityResponse> createCollectivities(List<CreateCollectivity> createCollectivities) throws BadRequestException {
         List<Collectivity> collectivitiesToSave = new ArrayList<>();
@@ -36,7 +62,7 @@ public class CollectivityService {
                     .name(generateCollectivityName(request.getLocation()))
                     .speciality("Agriculture")
                     .federationApproval(request.isFederationApproval())
-                    .authorizationDate(Instant.now())
+                    .authorizationDate(Date.from(Instant.now()))
                     .location(request.getLocation())
                     .build();
 

@@ -15,7 +15,6 @@ import org.springframework.web.bind.annotation.RestController;
 @AllArgsConstructor
 public class FederationController {
     private final FederationService federationService;
-
     @GetMapping
     public ResponseEntity<?> getFederation() {
         try {

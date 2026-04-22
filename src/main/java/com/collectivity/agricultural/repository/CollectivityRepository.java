@@ -13,6 +13,7 @@ import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -46,7 +47,7 @@ public class CollectivityRepository {
                 stmt.setString(3, collectivity.getSpeciality());
                 stmt.setBoolean(4, collectivity.isFederationApproval());
                 stmt.setTimestamp(5, collectivity.getAuthorizationDate() != null ?
-                        Timestamp.from(collectivity.getAuthorizationDate()) : null);
+                        Timestamp.from(collectivity.getAuthorizationDate().toInstant()) : null);
                 stmt.setString(6, collectivity.getLocation());
 
                 ResultSet rs = stmt.executeQuery();
@@ -143,10 +144,10 @@ public class CollectivityRepository {
                         .number(rs.getString("number"))
                         .name(rs.getString("name"))
                         .speciality(rs.getString("speciality"))
-                        .creationDatetime(rs.getTimestamp("creation_datetime").toInstant())
+                        .creationDatetime(Date.from(rs.getTimestamp("creation_datetime").toInstant()))
                         .federationApproval(rs.getBoolean("federation_approval"))
                         .authorizationDate(rs.getTimestamp("authorization_date") != null ?
-                                rs.getTimestamp("authorization_date").toInstant() : null)
+                                Date.from(rs.getTimestamp("authorization_date").toInstant()) : null)
                         .location(rs.getString("location"))
                         .build();
 
@@ -242,5 +243,36 @@ public class CollectivityRepository {
         }
 
         return savedCollectivities;
+    }
+    // J question
+    // 1. Vérifier si le nom existe déjà
+    public boolean existsByName(String name) {
+        String sql = "SELECT count(*) FROM collectivity WHERE name = ?";
+        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+            stmt.setString(1, name);
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) {
+                return rs.getInt(1) > 0;
+            }
+            return false;
+        } catch (SQLException e) {
+            throw new RuntimeException("Erreur lors de la vérification du nom", e);
+        }
+    }
+
+    // 2. Mettre à jour uniquement le numéro et le nom
+    public void updateIdentity(Integer id, String number, String name) {
+        String sql = "UPDATE collectivity SET number = ?, name = ? WHERE id = ?";
+        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+            stmt.setString(1, number);
+            stmt.setString(2, name);
+            stmt.setInt(3, id);
+            int affectedRows = stmt.executeUpdate();
+            if (affectedRows == 0) {
+                throw new SQLException("Échec de la mise à jour, collectivité non trouvée.");
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("Erreur lors de la mise à jour de l'identité", e);
+        }
     }
 }

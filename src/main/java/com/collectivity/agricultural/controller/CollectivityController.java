@@ -1,17 +1,17 @@
 package com.collectivity.agricultural.controller;
 
+import com.collectivity.agricultural.entity.Collectivity;
 import com.collectivity.agricultural.entity.dto.CollectivityResponse;
 import com.collectivity.agricultural.entity.dto.CreateCollectivity;
 import com.collectivity.agricultural.exception.NotFoundException;
 import com.collectivity.agricultural.service.CollectivityService;
 import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.apache.coyote.BadRequestException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -37,5 +37,42 @@ public class CollectivityController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body("An unexpected error occurred: " + e.getMessage());
         }
+    }
+
+
+    @PatchMapping("/{id}/identity")
+    public ResponseEntity<?> updateIdentity(
+            @PathVariable Integer id,
+            @RequestBody IdentityRequest request) {
+        try {
+            // Appel de la logique métier adaptée à l'immuabilité et l'unicité
+            Collectivity updated = service.assignIdentity(id, request.getNumber(), request.getName());
+            return ResponseEntity.ok(updated);
+
+        } catch (IllegalStateException e) {
+            // 403 Forbidden : Identité déjà fixée (Immuabilité)
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(e.getMessage());
+
+        } catch (IllegalArgumentException e) {
+            // 400 Bad Request : Nom déjà utilisé ou données manquantes
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+
+        } catch (NotFoundException e) {
+            // 404 Not Found : Collectivité inexistante
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Erreur lors de l'attribution : " + e.getMessage());
+        }
+    }
+
+
+    @Data
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class IdentityRequest {
+        private String number;
+        private String name;
     }
 }
