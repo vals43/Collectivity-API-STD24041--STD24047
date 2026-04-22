@@ -5,11 +5,10 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="f0dc108f-098e-4247-a511-b6aa2231895e" name="Changes" comment="">
-<<<<<<< HEAD
-=======
-      <change afterPath="$PROJECT_DIR$/src/main/resources/schema.sql" afterDir="false" />
->>>>>>> 49e9b170eaf45407e5628a270f5ec3b9a938cebd
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/collectivity/agricultural/config/Datasource.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/collectivity/agricultural/config/Datasource.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/collectivity/agricultural/validator/CollectivityRuleValidator.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/collectivity/agricultural/validator/CollectivityRuleValidator.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/collectivity/agricultural/validator/CollectivityValidator.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/collectivity/agricultural/validator/CollectivityValidator.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -53,12 +52,17 @@
   <component name="PropertiesComponent"><![CDATA[{
   "keyToString": {
     "ModuleVcsDetector.initialDetectionPerformed": "true",
+    "RequestMappingsPanelOrder0": "0",
+    "RequestMappingsPanelOrder1": "1",
+    "RequestMappingsPanelWidth0": "75",
+    "RequestMappingsPanelWidth1": "75",
     "RunOnceActivity.MCP Project settings loaded": "true",
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
     "RunOnceActivity.git.unshallow": "true",
     "RunOnceActivity.typescript.service.memoryLimit.init": "true",
-    "git-widget-placeholder": "Implementation",
+    "Spring Boot.AgriculturalApplication.executor": "Run",
+    "git-widget-placeholder": "21-april",
     "kotlin-language-version-configured": "true",
     "last_opened_file_path": "D:/federation-api",
     "node.js.detected.package.eslint": "true",
@@ -112,6 +116,13 @@
       <option name="launchJavascriptDebuger" value="false" />
       <method v="2" />
     </configuration>
+    <configuration name="AgriculturalApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" nameIsGenerated="true">
+      <module name="agricultural" />
+      <option name="SPRING_BOOT_MAIN_CLASS" value="com.collectivity.agricultural.AgriculturalApplication" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
     <configuration default="true" type="Tox" factoryName="Tox">
       <module name="OAS Collectivité" />
       <option name="ENV_FILES" value="" />
@@ -124,13 +135,6 @@
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
       <method v="2" />
-    </configuration>
-    <configuration name="AgriculturalApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" nameIsGenerated="true">
-      <module name="agricultural" />
-      <option name="SPRING_BOOT_MAIN_CLASS" value="com.collectivity.agricultural.AgriculturalApplication" />
-      <method v="2">
-        <option name="Make" enabled="true" />
-      </method>
     </configuration>
   </component>
   <component name="SharedIndexes">
