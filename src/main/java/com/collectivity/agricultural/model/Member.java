@@ -1,6 +1,6 @@
-package com.collectivity.agricultural.entity;
+package com.collectivity.agricultural.model;
 
-import com.collectivity.agricultural.entity.enums.Gender;
+import com.collectivity.agricultural.model.enums.Gender;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Builder;

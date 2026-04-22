@@ -1,10 +1,10 @@
 package com.collectivity.agricultural.repository;
 
-import com.collectivity.agricultural.entity.Collectivity;
-import com.collectivity.agricultural.entity.Member;
-import com.collectivity.agricultural.entity.Structure;
-import com.collectivity.agricultural.entity.enums.CollectivityOccupation;
-import com.collectivity.agricultural.entity.enums.Gender;
+import com.collectivity.agricultural.model.Collectivity;
+import com.collectivity.agricultural.model.Member;
+import com.collectivity.agricultural.model.Structure;
+import com.collectivity.agricultural.model.enums.CollectivityOccupation;
+import com.collectivity.agricultural.model.enums.Gender;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Repository;
 

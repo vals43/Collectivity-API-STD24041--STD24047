@@ -1,13 +1,10 @@
 
-package com.collectivity.agricultural.entity;
+package com.collectivity.agricultural.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
-import java.lang.reflect.Member;
-import java.util.List;
 
 @Data
 @AllArgsConstructor

@@ -1,8 +1,8 @@
 package com.collectivity.agricultural.service;
 
-import com.collectivity.agricultural.entity.Collectivity;
-import com.collectivity.agricultural.entity.dto.CollectivityResponse;
-import com.collectivity.agricultural.entity.dto.CreateCollectivity;
+import com.collectivity.agricultural.model.Collectivity;
+import com.collectivity.agricultural.model.dto.CollectivityResponse;
+import com.collectivity.agricultural.model.dto.CreateCollectivity;
 import com.collectivity.agricultural.repository.CollectivityRepository;
 import com.collectivity.agricultural.validator.CollectivityValidator;
 import lombok.AllArgsConstructor;

@@ -1,6 +1,6 @@
 package com.collectivity.agricultural.controller;
 
-import com.collectivity.agricultural.entity.Federation;
+import com.collectivity.agricultural.model.Federation;
 import com.collectivity.agricultural.exception.NotFoundException;
 import com.collectivity.agricultural.service.FederationService;
 import lombok.AllArgsConstructor;

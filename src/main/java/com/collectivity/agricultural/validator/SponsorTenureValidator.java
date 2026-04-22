@@ -1,7 +1,7 @@
 package com.collectivity.agricultural.validator;
 
 
-import com.collectivity.agricultural.entity.Member;
+import com.collectivity.agricultural.model.Member;
 import com.collectivity.agricultural.exception.SponsorTenureException;
 import org.springframework.stereotype.Component;
 

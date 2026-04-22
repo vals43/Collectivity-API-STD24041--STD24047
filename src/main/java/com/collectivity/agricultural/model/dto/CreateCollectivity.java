@@ -1,4 +1,4 @@
-package com.collectivity.agricultural.entity.dto;
+package com.collectivity.agricultural.model.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
