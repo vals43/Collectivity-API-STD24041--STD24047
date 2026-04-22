@@ -70,4 +70,36 @@ public class TransactionRepository {
         }
         return transactions;
     }
+    public List<Transaction> findTransactionsByPeriod(Integer id, String from, String to) {
+        List<Transaction> transactions = new ArrayList<>();
+        // Requête SQL filtrant par collectivité ET par période
+        String sql = """
+        SELECT * FROM "transaction" 
+        WHERE id_collectivity = ? 
+        AND transaction_date BETWEEN ?::date AND ?::date 
+        ORDER BY transaction_date DESC
+    """;
+
+        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+            stmt.setInt(1, id);
+            stmt.setString(2, from); // "2026-01-01"
+            stmt.setString(3, to);   // "2026-12-31"
+
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    transactions.add(Transaction.builder()
+                            .id(rs.getInt("id"))
+                            .memberId(rs.getInt("id_member"))
+                            .collectivityId(rs.getInt("id_collectivity"))
+                            .amount(rs.getBigDecimal("amount"))
+                            .description(rs.getString("description"))
+                            .transactionDate(rs.getTimestamp("transaction_date"))
+                            .build());
+                }
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("Erreur SQL lors de la recherche par période", e);
+        }
+        return transactions;
+    }
 }

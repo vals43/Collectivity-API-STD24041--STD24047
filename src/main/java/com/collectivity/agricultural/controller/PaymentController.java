@@ -16,16 +16,18 @@ public class PaymentController {
 
     private final PaymentService paymentService;
 
-
+    /**
+     * POST /collectivities/{id}/payments
+     * Doit accepter une LISTE de paiements selon l'OpenAPI v0.0.3
+     */
     @PostMapping("/{id}/payments")
-    public ResponseEntity<?> addPayment(
+    public ResponseEntity<?> addPayments(
             @PathVariable("id") Integer collectivityId,
-            @RequestBody Transaction payment) {
+            @RequestBody List<Transaction> payments) { // Changé en List
         try {
-            payment.setCollectivityId(collectivityId);
-
-            paymentService.processPayment(collectivityId, payment);
-            return ResponseEntity.status(HttpStatus.CREATED).body("Paiement enregistré avec succès");
+            // On délègue le traitement de la liste au service
+            paymentService.processPayments(collectivityId, payments);
+            return ResponseEntity.status(HttpStatus.CREATED).body("Paiements enregistrés avec succès");
         } catch (IllegalArgumentException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         } catch (Exception e) {
@@ -33,10 +35,20 @@ public class PaymentController {
         }
     }
 
-
+    /**
+     * GET /collectivities/{id}/transactions
+     * Les paramètres 'from' et 'to' sont OBLIGATOIRES dans l'OpenAPI v0.0.3
+     */
     @GetMapping("/{id}/transactions")
-    public ResponseEntity<List<Transaction>> getTransactions(@PathVariable("id") Integer collectivityId) {
-        List<Transaction> transactions = paymentService.getTransactionsByCollectivity(collectivityId);
-        return ResponseEntity.ok(transactions);
+    public ResponseEntity<?> getTransactions(
+            @PathVariable("id") Integer collectivityId,
+            @RequestParam("from") String from, // Paramètre obligatoire
+            @RequestParam("to") String to) {   // Paramètre obligatoire
+        try {
+            List<Transaction> transactions = paymentService.getTransactionsByPeriod(collectivityId, from, to);
+            return ResponseEntity.ok(transactions);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Paramètres de date invalides ou manquants");
+        }
     }
 }
