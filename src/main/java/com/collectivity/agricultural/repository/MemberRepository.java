@@ -2,6 +2,7 @@ package com.collectivity.agricultural.repository;
 
 
 import com.collectivity.agricultural.entity.Member;
+import com.collectivity.agricultural.entity.dto.CreateMember;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Repository;
 
@@ -100,7 +101,7 @@ public class MemberRepository {
         }
     }
 
-    public List<Member> saveAll(List<Member> members, List<CreateMember> dtos) {
+    public List<Member> saveAll(List<Member> members, List<MemberCreateMember> dtos) {
 
         String insertMemberSql = """
         INSERT INTO member(
