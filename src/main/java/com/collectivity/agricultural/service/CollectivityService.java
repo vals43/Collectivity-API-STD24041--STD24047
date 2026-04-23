@@ -1,13 +1,13 @@
 package com.collectivity.agricultural.service;
 
 import com.collectivity.agricultural.model.Collectivity;
+import com.collectivity.agricultural.model.FinancialAccount;
 import com.collectivity.agricultural.model.dto.CollectivityResponse;
 import com.collectivity.agricultural.model.dto.CreateCollectivity;
 import com.collectivity.agricultural.repository.CollectivityRepository;
 import com.collectivity.agricultural.validator.CollectivityValidator;
 import lombok.AllArgsConstructor;
 import org.apache.coyote.BadRequestException;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
@@ -17,27 +17,28 @@ import java.util.List;
 import java.util.UUID;
 
 @Service
-@AllArgsConstructor
+@AllArgsConstructor // Gère l'injection de repository et validator automatiquement
 public class CollectivityService {
-    @Autowired
+
     private final CollectivityRepository repository;
     private final CollectivityValidator validator;
 
-    // J question
+    /**
+     * J question : Attribution d'un nom et numéro unique
+     */
     public Collectivity assignIdentity(Integer id, String newNumber, String newName) {
-        // Récupération de l'état actuel
         Collectivity collectivity = repository.findById(id);
+
         if (collectivity == null) {
             throw new RuntimeException("Collectivité introuvable ID: " + id);
         }
 
-        if (collectivity.getNumber() != null || collectivity.getName() != null) {
-            // Cette exception doit retourner un 403 (Forbidden)
+        // Vérification si l'identité est déjà fixée (number/name non null ou non vide)
+        if (isIdentityFixed(collectivity)) {
             throw new IllegalStateException("L'identité est déjà fixée et ne peut plus être modifiée.");
         }
 
         if (repository.existsByName(newName)) {
-            // Cette exception doit retourner un 400 (Bad Request)
             throw new IllegalArgumentException("Le nom '" + newName + "' est déjà utilisé.");
         }
 
@@ -46,7 +47,15 @@ public class CollectivityService {
         return repository.findById(id);
     }
 
-    public List<CollectivityResponse> createCollectivities(List<CreateCollectivity> createCollectivities) throws BadRequestException {
+    private boolean isIdentityFixed(Collectivity c) {
+        return (c.getNumber() != null && !c.getNumber().isBlank()) ||
+                (c.getName() != null && !c.getName().isBlank());
+    }
+
+    /**
+     * POST /collectivities : Création d'une liste de collectivités
+     */
+    public List<CollectivityResponse> createCollectivities(List<CreateCollectivity> createRequests) throws BadRequestException {
         List<Collectivity> collectivitiesToSave = new ArrayList<>();
         List<List<Integer>> memberIdsList = new ArrayList<>();
         List<Integer> presidentIds = new ArrayList<>();
@@ -54,7 +63,8 @@ public class CollectivityService {
         List<Integer> treasurerIds = new ArrayList<>();
         List<Integer> secretaryIds = new ArrayList<>();
 
-        for (CreateCollectivity request : createCollectivities) {
+        for (CreateCollectivity request : createRequests) {
+            // Validation personnalisée (vérifie les IDs de membres, etc.)
             validator.validateCollectivityCreation(request);
 
             Collectivity collectivity = Collectivity.builder()
@@ -68,6 +78,8 @@ public class CollectivityService {
 
             collectivitiesToSave.add(collectivity);
             memberIdsList.add(request.getMemberIds());
+
+            // Extraction des IDs de la structure
             presidentIds.add(request.getStructure().getPresidentId());
             vicePresidentIds.add(request.getStructure().getVicePresidentId());
             treasurerIds.add(request.getStructure().getTreasurerId());
@@ -102,6 +114,27 @@ public class CollectivityService {
     }
 
     private String generateCollectivityName(String locationName) {
-        return "Collectivité de " + locationName;
+        return "Collectivité de " + locationName + " " + UUID.randomUUID().toString().substring(0, 4);
+    }
+    // Dans CollectivityService.java
+
+    // POINT D : Récupération par ID
+    public Collectivity getById(Integer id) {
+        Collectivity collectivity = repository.findById(id);
+        if (collectivity == null) {
+            // Optionnel : Tu peux créer une classe ResourceNotFoundException pour un retour 404 propre
+            throw new RuntimeException("Collectivité non trouvée pour l'ID : " + id);
+        }
+        return collectivity;
+    }
+
+    // POINT C : Comptes financiers avec solde
+    public List<FinancialAccount> getFinancialAccountsWithBalance(Integer id, String atDate) {
+        // Au lieu de faire un findById complet, on peut juste vérifier l'existence ou
+        // laisser le repository renvoyer une liste vide si l'ID n'existe pas.
+        // Mais pour la sécurité métier, on garde la vérification :
+        this.getById(id);
+
+        return repository.findAccountsWithBalance(id, atDate);
     }
 }
