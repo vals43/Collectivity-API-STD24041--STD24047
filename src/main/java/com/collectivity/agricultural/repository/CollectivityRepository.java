@@ -6,6 +6,7 @@ import com.collectivity.agricultural.model.Member;
 import com.collectivity.agricultural.model.Structure;
 import com.collectivity.agricultural.model.enums.CollectivityOccupation;
 import com.collectivity.agricultural.model.enums.Gender;
+import com.collectivity.agricultural.model.enums.PaymentMode;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Repository;
 
@@ -179,7 +180,7 @@ public class CollectivityRepository {
                 accounts.add(FinancialAccount.builder()
                         .id(rs.getString("id"))
                         .label(rs.getString("label"))
-                        .type(rs.getString("type"))
+                        .type(PaymentMode.valueOf(rs.getString("type")))
                         .balance(rs.getBigDecimal("balance"))
                         .build());
             }

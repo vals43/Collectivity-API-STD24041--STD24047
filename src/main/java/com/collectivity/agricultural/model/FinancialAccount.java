@@ -1,5 +1,6 @@
 package com.collectivity.agricultural.model;
 
+import com.collectivity.agricultural.model.enums.PaymentMode;
 import lombok.*;
 import java.math.BigDecimal;
 
@@ -8,6 +9,6 @@ import java.math.BigDecimal;
 public class FinancialAccount {
     private String id;
     private String label; // ex: "Caisse principale", "Compte BNI"
-    private String type;  // CASH, MOBILE_MONEY, BANK
+    private PaymentMode type;  // CASH, MOBILE_MONEY, BANK
     private BigDecimal balance; // Le solde calculé
 }
