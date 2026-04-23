@@ -18,7 +18,7 @@ import java.util.List;
 @RestController
 @AllArgsConstructor
 @RequestMapping("/collectivities")
-public class CollectivityController {
+public class   CollectivityController {
     private final CollectivityService service;
 
     @PostMapping
