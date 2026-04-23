@@ -44,15 +44,28 @@ public class TransactionRepository {
     }
     public List<Transaction> findAllByCollectivityId(Integer collectivityId) {
         List<Transaction> transactions = new ArrayList<>();
-        String sql = "SELECT * FROM \"transaction\" WHERE id_collectivity = ? ORDER BY transaction_date DESC";
-
+        String sql = """
+        SELECT 
+            t.id, 
+            t.id_member, 
+            t.id_account, 
+            t.amount, 
+            t.type, 
+            t.mode, 
+            t.transaction_date, 
+            t.label 
+        FROM "transaction" t
+        JOIN "account" a ON t.id_account = a.id
+        WHERE a.id_collectivity = ? 
+        ORDER BY t.transaction_date DESC
+    """;
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setInt(1, collectivityId);
 
             try (ResultSet rs = stmt.executeQuery()) {
                 while (rs.next()) {
                     transactions.add(Transaction.builder()
-                            .id(rs.getInt("id"))
+                            .id(String.valueOf(rs.getString("id")))
                             .memberId(rs.getInt("id_member"))
                             .collectivityId(rs.getInt("id_collectivity"))
                             .cotisationPlanId(rs.getObject("id_cotisation_plan") != null ? rs.getInt("id_cotisation_plan") : null)
@@ -74,10 +87,20 @@ public class TransactionRepository {
         List<Transaction> transactions = new ArrayList<>();
         // Requête SQL filtrant par collectivité ET par période
         String sql = """
-        SELECT * FROM "transaction" 
-        WHERE id_collectivity = ? 
-        AND transaction_date BETWEEN ?::date AND ?::date 
-        ORDER BY transaction_date DESC
+        SELECT 
+            t.id, 
+            t.id_member, 
+            t.id_account, 
+            t.amount, 
+            t.type, 
+            t.mode, 
+            t.transaction_date, 
+            t.label 
+        FROM "transaction" t
+        JOIN "account" a ON t.id_account = a.id
+        WHERE a.id_collectivity = ? 
+        AND t.transaction_date BETWEEN ?::date AND ?::date 
+        ORDER BY t.transaction_date DESC
     """;
 
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
@@ -88,7 +111,7 @@ public class TransactionRepository {
             try (ResultSet rs = stmt.executeQuery()) {
                 while (rs.next()) {
                     transactions.add(Transaction.builder()
-                            .id(rs.getInt("id"))
+                            .id(String.valueOf(rs.getString("id")))
                             .memberId(rs.getInt("id_member"))
                             .collectivityId(rs.getInt("id_collectivity"))
                             .amount(rs.getBigDecimal("amount"))

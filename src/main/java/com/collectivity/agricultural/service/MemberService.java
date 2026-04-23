@@ -74,7 +74,7 @@ public class MemberService {
                     CreateMember dto = dtos.get(i);
 
                     return MemberResponse.builder()
-                            .id(m.getId())
+                            .id(Integer.valueOf(String.valueOf(m.getId())))
                             .firstName(m.getFirstName())
                             .lastName(m.getLastName())
                             .birthDate(m.getBirthDate())

@@ -1,225 +1,84 @@
--- enums
+-- ==========================================================
+-- 1. NETTOYAGE ET ENUMS
+-- ==========================================================
+DROP TABLE IF EXISTS "transaction" CASCADE;
+DROP TABLE IF EXISTS "account" CASCADE;
+DROP TABLE IF EXISTS "member_referee" CASCADE;
+DROP TABLE IF EXISTS "member" CASCADE;
+DROP TABLE IF EXISTS "collectivity" CASCADE;
+DROP TABLE IF EXISTS "federation" CASCADE;
 
-CREATE TYPE "collectivity_occupation"  AS ENUM ('PRESIDENT', 'VICE_PRESIDENT', 'TREASURER', 'SECRETARY', 'SENIOR', 'JUNIOR');
-CREATE TYPE "federation_occupation"  AS ENUM ('PRESIDENT', 'VICE_PRESIDENT', 'TREASURER', 'SECRETARY');
-CREATE TYPE "gender"                  AS ENUM ('MALE', 'FEMALE');
-CREATE TYPE "cotisation_frequency"    AS ENUM ('MONTHLY', 'ANNUAL', 'PUNCTUAL');
-CREATE TYPE "payment_mode"            AS ENUM ('CASH', 'BANK_TRANSFER', 'MOBILE_MONEY');
-CREATE TYPE "bank_name"          AS ENUM ('BRED', 'MCB', 'BMOI', 'BOA', 'BGFI', 'AFG', 'ACCES_BANQUE', 'BAOBAB', 'SIPEM');
-CREATE TYPE "mobile_money_service"    AS ENUM ('ORANGE_MONEY', 'MVOLA', 'AIRTEL_MONEY');
-CREATE TYPE "transaction_type" AS ENUM ('IN', 'OUT');
+CREATE TYPE "occupation_type" AS ENUM ('PRESIDENT', 'VICE_PRESIDENT', 'TREASURER', 'SECRETARY', 'SENIOR', 'JUNIOR');
+CREATE TYPE "gender_type" AS ENUM ('MALE', 'FEMALE');
+CREATE TYPE "account_type" AS ENUM ('CASH', 'MOBILE_MONEY', 'BANK');
+CREATE TYPE "payment_mode" AS ENUM ('CASH', 'BANK_TRANSFER', 'MOBILE_MONEY');
+CREATE TYPE "trans_type" AS ENUM ('IN', 'OUT');
 
--- tables
+-- ==========================================================
+-- 2. STRUCTURE ADMINISTRATIVE
+-- ==========================================================
 
-CREATE TABLE "public"."member" (
-                                   "id"              serial      NOT NULL,
-                                   "first_name"      varchar     NOT NULL,
-                                   "last_name"       varchar     NOT NULL,
-                                   "birth_date"      date        NOT NULL,
-                                   "enrolment_date"  timestamp   NOT NULL,
-                                   "address"         text        NOT NULL,
-                                   "email"           varchar     NOT NULL UNIQUE,
-                                   "phone_number"    varchar     NOT NULL UNIQUE,
-                                   "profession"      varchar     NOT NULL,
-                                   "gender"          gender      NOT NULL,
-                                   PRIMARY KEY ("id")
+CREATE TABLE "federation" (
+                              "id" VARCHAR(50) PRIMARY KEY,
+                              "cotisation_percentage" NUMERIC(5,2) DEFAULT 10.00
 );
 
--- this table is currently not used since we used varchar for location in collectivity for now
-CREATE TABLE "public"."location" (
-                                     "id"   serial      NOT NULL,
-                                     "name" varchar     NOT NULL,
-                                     PRIMARY KEY ("id")
+CREATE TABLE "collectivity" (
+                                "id" VARCHAR(50) PRIMARY KEY, -- ex: 'col-1'
+                                "number" VARCHAR(20) UNIQUE,  -- Attribué plus tard (PUT /informations)
+                                "name" VARCHAR(100) UNIQUE,   -- Attribué plus tard (PUT /informations)
+                                "speciality" VARCHAR(100) NOT NULL,
+                                "location" VARCHAR(255) NOT NULL,
+                                "creation_date" DATE DEFAULT CURRENT_DATE,
+                                "id_federation" VARCHAR(50) REFERENCES "federation"("id")
 );
 
-CREATE TABLE "public"."federation" (
-                                       "id"                    serial         NOT NULL,
-                                       "cotisation_percentage" numeric(5,2)   NOT NULL DEFAULT 10.00,
-                                       PRIMARY KEY ("id")
+CREATE TABLE "member" (
+                          "id" VARCHAR(50) PRIMARY KEY, -- ex: 'C1-M1'
+                          "first_name" VARCHAR(255) NOT NULL,
+                          "last_name" VARCHAR(255) NOT NULL,
+                          "birth_date" DATE NOT NULL,
+                          "gender" "gender_type" NOT NULL,
+                          "address" TEXT,
+                          "phone_number" VARCHAR(50) UNIQUE,
+                          "email" VARCHAR(255) UNIQUE,
+                          "profession" VARCHAR(255), -- Le métier réel (ex: Riziculteur)
+                          "occupation" "occupation_type" DEFAULT 'JUNIOR', -- Le rôle dans la fédération
+                          "admission_date" DATE DEFAULT CURRENT_DATE,
+                          "id_collectivity" VARCHAR(50) REFERENCES "collectivity"("id") ON DELETE CASCADE
 );
 
-CREATE TABLE "public"."collectivity" (
-                                         "id"                 serial                NOT NULL,
-                                         "number"             varchar               UNIQUE,
-                                         "name"               varchar               UNIQUE,
-                                         "speciality"         varchar               NOT NULL,
-                                         "creation_datetime"  timestamp             NOT NULL,
-                                         "federation_approval" boolean DEFAULT FALSE,
-                                         "authorization_date" timestamp,
-                                         "id_federation"      int                   NOT NULL,
-                                         "location"        varchar                   NOT NULL,
-                                         PRIMARY KEY ("id")
+-- Correction Angle Mort : Relation de parrainage (B-2)
+CREATE TABLE "member_referee" (
+                                  "id" SERIAL PRIMARY KEY,
+                                  "id_candidate" VARCHAR(50) NOT NULL REFERENCES "member"("id") ON DELETE CASCADE,
+                                  "id_referee" VARCHAR(50) NOT NULL REFERENCES "member"("id"),
+                                  "relationship" VARCHAR(255) NOT NULL, -- Ami, Famille, Collègue
+                                  UNIQUE("id_candidate", "id_referee")
 );
 
-CREATE TABLE "public"."member_collectivity" (
-                                                "id"              serial                    NOT NULL,
-                                                "id_member"       int                       NOT NULL,
-                                                "id_collectivity" int                       NOT NULL,
-                                                "occupation"      collectivity_occupation  NOT NULL,
-                                                "start_date"      timestamp                 NOT NULL,
-                                                "end_date"        timestamp,
-                                                PRIMARY KEY ("id")
+-- ==========================================================
+-- 3. TRÉSORERIE ET COMPTES (Aligné Tableau 10)
+-- ==========================================================
+
+CREATE TABLE "account" (
+                           "id" VARCHAR(50) PRIMARY KEY, -- ex: 'C2-A-CASH', 'C2-A-MOBILE-1'
+                           "id_collectivity" VARCHAR(50) NOT NULL REFERENCES "collectivity"("id") ON DELETE CASCADE,
+                           "type" "account_type" NOT NULL,
+                           "bank_name" VARCHAR(100),      -- Pour les comptes BANK
+                           "account_number" VARCHAR(23), -- Pour BANK (RIB)
+                           "mobile_service" VARCHAR(50),  -- MVOLA, AIRTEL_MONEY, ORANGE_MONEY
+                           "owner_name" VARCHAR(255)      -- Nom du titulaire (demandé dans le TD)
 );
 
-CREATE TABLE "public"."member_referee" (
-                                           "id"              serial      NOT NULL,
-                                           "id_candidate"    int         NOT NULL,
-                                           "id_referee"      int         NOT NULL,
-                                           "id_collectivity" int         NOT NULL,
-                                           "relationship"    varchar     NOT NULL,
-                                           "created_at"      timestamp   NOT NULL DEFAULT NOW(),
-                                           PRIMARY KEY ("id"),
-                                           UNIQUE ("id_candidate", "id_referee")
+-- Correction Angle Mort : Calcul du solde à la date T
+CREATE TABLE "transaction" (
+                               "id" SERIAL PRIMARY KEY,
+                               "id_member" VARCHAR(50) REFERENCES "member"("id"), -- Qui a payé ?
+                               "id_account" VARCHAR(50) NOT NULL REFERENCES "account"("id"), -- Sur quel compte ?
+                               "amount" NUMERIC(15,2) NOT NULL,
+                               "type" "trans_type" NOT NULL DEFAULT 'IN',
+                               "mode" "payment_mode" NOT NULL,
+                               "transaction_date" TIMESTAMP NOT NULL DEFAULT NOW(), -- Précision pour le paramètre 'at'
+                               "label" VARCHAR(255) -- ex: 'Frais d''adhésion', 'Cotisation annuelle'
 );
-
-CREATE TABLE "public"."mandate_federation" (
-                                               "id"            serial                  NOT NULL,
-                                               "id_member"     int                     NOT NULL,
-                                               "id_federation" int                     NOT NULL,
-                                               "occupation"    federation_occupation   NOT NULL,
-                                               "start_date"    timestamp               NOT NULL,
-                                               "end_date"      timestamp,
-                                               PRIMARY KEY ("id")
-);
-
-CREATE TABLE "public"."cotisation_plan" (
-                                            "id"              serial                NOT NULL,
-                                            "id_collectivity" int                   NOT NULL,
-                                            "label"           varchar               NOT NULL,
-                                            "frequency"       cotisation_frequency  NOT NULL,
-                                            "amount"          numeric(15,2)         NOT NULL,
-                                            "year"            int,
-                                            "is_active"       boolean               NOT NULL DEFAULT true,
-                                            PRIMARY KEY ("id")
-);
-
-CREATE TABLE "public"."transaction" (
-                                        "id"                  serial          NOT NULL,
-                                        "id_member"           int             NOT NULL,
-                                        "id_collectivity"     int             NOT NULL,
-                                        "id_cotisation_plan"  int,            -- si c'est null donc c'est le frais d'adhésion ou un coticota ponctuel
-                                        "id_account"          int             NOT NULL,
-                                        "transaction_type"    transaction_type   NOT NULL DEFAULT 'IN',
-                                        "amount"              numeric(15,2)   NOT NULL,
-                                        "transaction_date"    timestamp       NOT NULL DEFAULT NOW(),
-                                        "payment_mode"        payment_mode,   -- null quand c un OUT transaction
-                                        "description"         text,
-                                        PRIMARY KEY ("id")
-);
-
-CREATE TABLE "public"."account" (
-                                    "id"              serial  NOT NULL,
-                                    "id_collectivity" int,
-                                    "id_federation"   int,
-                                    PRIMARY KEY ("id"),
-                                    CONSTRAINT "chk_account_owner" CHECK (
-                                        ("id_collectivity" IS NOT NULL AND "id_federation" IS NULL) OR
-                                        ("id_collectivity" IS NULL AND "id_federation" IS NOT NULL)
-                                        )
-);
-
-CREATE TABLE "public"."cash_account" (
-                                         "id"          serial NOT NULL,
-                                         "id_account"  int    NOT NULL UNIQUE,
-
-                                         PRIMARY KEY ("id"),
-
-                                         CONSTRAINT "fk_cash_account"
-                                             FOREIGN KEY ("id_account")
-                                                 REFERENCES "public"."account" ("id")
-                                                 ON DELETE CASCADE
-);
-
-CREATE TABLE "public"."bank_account" (
-                                         "id"             serial           NOT NULL,
-                                         "id_account"     int              NOT NULL UNIQUE,
-                                         "holder_name"    varchar          NOT NULL,
-                                         "bank_name"      bank_name   NOT NULL,
-                                         "bank_code"      char(5)          NOT NULL,
-                                         "branch_code"    char(5)          NOT NULL,
-                                         "account_number" char(11)         NOT NULL,
-                                         "rib_key"        char(2)          NOT NULL,
-
-                                         PRIMARY KEY ("id"),
-
-                                         CONSTRAINT "fk_bank_account"
-                                             FOREIGN KEY ("id_account")
-                                                 REFERENCES "public"."account" ("id")
-                                                 ON DELETE CASCADE
-);
-
-CREATE TABLE "public"."mobile_money_account" (
-                                                 "id"           serial               NOT NULL,
-                                                 "id_account"   int                  NOT NULL UNIQUE,
-                                                 "holder_name"  varchar              NOT NULL,
-                                                 "service_name" mobile_money_service NOT NULL,
-                                                 "phone_number" varchar              NOT NULL UNIQUE,
-
-                                                 PRIMARY KEY ("id"),
-
-                                                 CONSTRAINT "fk_mobile_account"
-                                                     FOREIGN KEY ("id_account")
-                                                         REFERENCES "public"."account" ("id")
-                                                         ON DELETE CASCADE
-);
-
--- constraints
-
-ALTER TABLE "public"."collectivity"
-    ADD CONSTRAINT "fk_collectivity_federation"
-        FOREIGN KEY ("id_federation")
-            REFERENCES "public"."federation"("id");
-
-ALTER TABLE "public"."member_collectivity"
-    ADD CONSTRAINT "fk_member_collectivity_member"
-        FOREIGN KEY ("id_member")
-            REFERENCES "public"."member"("id"),
-    ADD CONSTRAINT "fk_member_collectivity_collectivity"
-        FOREIGN KEY ("id_collectivity")
-        REFERENCES "public"."collectivity"("id");
-
-ALTER TABLE "public"."member_referee"
-    ADD CONSTRAINT "fk_member_referee_candidate"
-        FOREIGN KEY ("id_candidate")
-            REFERENCES "public"."member"("id"),
-    ADD CONSTRAINT "fk_member_referee_referee"
-        FOREIGN KEY ("id_referee")
-        REFERENCES "public"."member"("id"),
-    ADD CONSTRAINT "fk_member_referee_collectivity"
-        FOREIGN KEY ("id_collectivity")
-        REFERENCES "public"."collectivity"("id");
-
-ALTER TABLE "public"."mandate_federation"
-    ADD CONSTRAINT "fk_mandate_federation_member"
-        FOREIGN KEY ("id_member")
-            REFERENCES "public"."member"("id"),
-    ADD CONSTRAINT "fk_mandate_federation_federation"
-        FOREIGN KEY ("id_federation")
-        REFERENCES "public"."federation"("id");
-
-ALTER TABLE "public"."cotisation_plan"
-    ADD CONSTRAINT "fk_cotisation_plan_collectivity"
-        FOREIGN KEY ("id_collectivity")
-            REFERENCES "public"."collectivity"("id");
-
-ALTER TABLE "public"."transaction"
-    ADD CONSTRAINT "fk_transaction_member"
-        FOREIGN KEY ("id_member")
-            REFERENCES "public"."member"("id"),
-    ADD CONSTRAINT "fk_transaction_collectivity"
-        FOREIGN KEY ("id_collectivity")
-        REFERENCES "public"."collectivity"("id"),
-    ADD CONSTRAINT "fk_transaction_cotisation_plan"
-        FOREIGN KEY ("id_cotisation_plan")
-        REFERENCES "public"."cotisation_plan"("id"),
-    ADD CONSTRAINT "fk_transaction_account"
-        FOREIGN KEY ("id_account")
-        REFERENCES "public"."account"("id");
-
-ALTER TABLE "public"."account"
-    ADD CONSTRAINT "fk_account_collectivity"
-        FOREIGN KEY ("id_collectivity")
-            REFERENCES "public"."collectivity"("id"),
-    ADD CONSTRAINT "fk_account_federation"
-        FOREIGN KEY ("id_federation")
-        REFERENCES "public"."federation"("id");

@@ -19,7 +19,7 @@ import java.util.List;
 @NoArgsConstructor
 public class Member {
 
-    private Integer id;
+    private String id;
     private String firstName;
     private String lastName;
     private LocalDate birthDate;
@@ -43,7 +43,7 @@ public class Member {
                 Duration.between(enrolmentDate, Instant.now()).toDays() >= 90;
     }
 
-    public List<Integer> getIdsOfActualBelongingCollectivities() {
+    public List<String> getIdsOfActualBelongingCollectivities() {
         if (memberCollectivities == null) return List.of();
 
         return memberCollectivities.stream()
@@ -54,7 +54,7 @@ public class Member {
 
     // i need this for the collectivity responses, examples show that member should display list of referees id
     // en vrai non, it should return list of members, but if we always returns members, it will be infinite loop since every member has referees, so putting id is a solution but im not sure
-    public List<Integer> getReferees(){
+    public List<String> getReferees(){
         return this.referees.stream().map(Member::getId).toList();
     }
 

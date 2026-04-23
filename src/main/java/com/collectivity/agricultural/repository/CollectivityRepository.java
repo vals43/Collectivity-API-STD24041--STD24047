@@ -103,13 +103,16 @@ public class CollectivityRepository {
     // --- RECHERCHE ET LECTURE ---
 
     public Collectivity findById(Integer id) {
-        String sql = "SELECT * FROM \"collectivity\" WHERE id = ?";
+        String sql = """
+            SELECT id, number, name, speciality, location, creation_date, id_federation 
+            FROM "collectivity" WHERE id = ?
+        """;
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setInt(1, id);
             try (ResultSet rs = stmt.executeQuery()) {
                 if (rs.next()) {
                     Collectivity collectivity = Collectivity.builder()
-                            .id(rs.getInt("id"))
+                            .id(String.valueOf(rs.getString("id")))
                             .name(rs.getString("name"))
                             .number(rs.getString("number")) // Récupération propre du String
                             .location(rs.getString("location"))
@@ -129,18 +132,31 @@ public class CollectivityRepository {
 
     private void fetchMembersAndStructure(Collectivity collectivity) {
         String sql = """
-            select m.*, mc.occupation from member_collectivity mc
-            join member m on mc.id_member = m.id
-            where mc.id_collectivity = ? AND mc.end_date is null
+       
+                SELECT
+           m.id,
+           m.first_name,
+           m.last_name,
+           m.birth_date,
+           m.gender,
+           m.address,
+           m.phone_number,
+           m.email,
+           m.profession,
+           mc.occupation
+       FROM member_collectivity mc
+       JOIN member m ON mc.id_member = m.id
+       WHERE mc.id_collectivity = ?
+         AND mc.end_date IS NULL;
         """;
         List<Member> members = new ArrayList<>();
         Structure structure = Structure.builder().build();
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
-            stmt.setInt(1, collectivity.getId());
+            stmt.setInt(1, Integer.parseInt(collectivity.getId()));
             ResultSet rs = stmt.executeQuery();
             while (rs.next()) {
                 Member member = Member.builder()
-                        .id(rs.getInt("id"))
+                        .id(String.valueOf(rs.getString("id")))
                         .firstName(rs.getString("first_name"))
                         .lastName(rs.getString("last_name"))
                         .gender(Gender.valueOf(rs.getString("gender")))
@@ -201,7 +217,7 @@ public class CollectivityRepository {
     }
 
     public boolean existsByName(String name) {
-        String sql = "SELECT count(*) FROM collectivity WHERE name = ?";
+        String sql = "SELECT COUNT(id) FROM \"collectivity\" WHERE name = ?;";
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setString(1, name);
             ResultSet rs = stmt.executeQuery();

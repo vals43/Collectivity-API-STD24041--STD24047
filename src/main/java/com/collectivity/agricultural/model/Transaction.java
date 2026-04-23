@@ -19,7 +19,7 @@ import java.util.Date;
 @NoArgsConstructor
 @Builder
 public class Transaction {
-    private Integer id;
+    private String id;
     private Integer memberId;
     private Integer collectivityId;
     private Integer cotisationPlanId;

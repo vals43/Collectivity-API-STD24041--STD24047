@@ -90,7 +90,7 @@ public class MemberRepository {
     }
 
     public boolean existsById(Integer id) {
-        String sql = "SELECT COUNT(*) FROM member WHERE id = ?";
+        String sql = "SELECT COUNT(id) FROM member WHERE id = ?";
 
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setInt(1, id);
@@ -162,7 +162,7 @@ public class MemberRepository {
                     if (!keys.next()) throw new RuntimeException("No generated key");
 
                     int memberId = keys.getInt(1);
-                    member.setId(memberId);
+                    member.setId(String.valueOf(memberId));
 
                     // ---------------- MEMBER_COLLECTIVITY ----------------
                     mcStmt.setInt(1, memberId);
@@ -209,7 +209,7 @@ public class MemberRepository {
 
     private Member mapBasicMember(ResultSet rs) throws SQLException {
         return Member.builder()
-                .id(rs.getInt("m_id"))
+                .id(String.valueOf(rs.getString("m_id")))
                 .firstName(rs.getString("first_name"))
                 .lastName(rs.getString("last_name"))
                 .birthDate(rs.getDate("birth_date").toLocalDate())
@@ -226,7 +226,7 @@ public class MemberRepository {
     private MemberCollectivity mapMemberCollectivity(ResultSet rs, Member member) throws SQLException {
 
         Collectivity c = Collectivity.builder()
-                .id(rs.getInt("c_id"))
+                .id(String.valueOf(rs.getInt("c_id")))
                 .name(rs.getString("name"))
                 .number(rs.getString("number"))
                 .speciality(rs.getString("speciality"))
@@ -239,7 +239,7 @@ public class MemberRepository {
                 .build();
 
         MemberCollectivity mc = MemberCollectivity.builder()
-                .id(rs.getInt("mc_id"))
+                .id(String.valueOf(rs.getInt("mc_id")))
                 .startDate(rs.getTimestamp("start_date").toInstant())
                 .endDate(rs.getTimestamp("end_date") != null
                         ? rs.getTimestamp("end_date").toInstant()
