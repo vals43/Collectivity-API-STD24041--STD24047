@@ -21,7 +21,7 @@ public class CollectivityRepository {
                              String treasurerId, String secretaryId) {
         String insertCollectivitySql = """
             INSERT INTO collectivity (id, number, name, speciality, federation_approval, 
-                                     authorization_date, location, id_federation, creation_datetime)
+                                     authorization_date, location, id_federation, creation_date)
             VALUES (?, ?, ?, ?, ?, ?, ?, 'fed-1', NOW())
         """;
 
@@ -110,7 +110,7 @@ public class CollectivityRepository {
 
     public Collectivity findById(String id) {
         String collectivitySql = """
-            SELECT id, number, name, speciality, creation_datetime,
+            SELECT id, number, name, speciality, creation_date,
                    federation_approval, authorization_date, location
             FROM collectivity
             WHERE id = ?
@@ -126,8 +126,8 @@ public class CollectivityRepository {
                         .number(rs.getString("number"))
                         .name(rs.getString("name"))
                         .speciality(rs.getString("speciality"))
-                        .creationDatetime(rs.getTimestamp("creation_datetime") != null ?
-                                rs.getDate("creation_datetime").toLocalDate() : null)
+                        .creationDatetime(rs.getTimestamp("creation_date") != null ?
+                                rs.getDate("creation_date").toLocalDate() : null)
                         .federationApproval(rs.getBoolean("federation_approval"))
                         .authorizationDate(rs.getTimestamp("authorization_date") != null ?
                                 rs.getDate("authorization_date").toLocalDate() : null)

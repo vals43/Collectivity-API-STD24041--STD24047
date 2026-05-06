@@ -292,7 +292,7 @@ Content-Type: application/json
 ]
 
 ### 8. Get financial accounts (current balance)
-GET http://localhost:8080/collectivities/1/financialAccounts
+GET http://localhost:8080/collectivities/col-1/financialAccounts
 
 ### 9. Get financial accounts at specific date
 GET http://localhost:8080/collectivities/1/financialAccounts?at=2024-04-23T10:00:00Z
