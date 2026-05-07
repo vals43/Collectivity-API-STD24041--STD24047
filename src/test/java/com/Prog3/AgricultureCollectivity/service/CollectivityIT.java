@@ -77,15 +77,18 @@ public class CollectivityIT {
     }
 
     @Test
-    void change_name() {
+    void change_name_ko_already_assigned() {
         var id = "col-1";
         var payload = new CollectivityInformation();
         payload.name = "Other";
+        payload.number = "+321";
 
-        var actualCollectivity = apiClient.put("/collectivities/" + id + "/informations", payload, Collectivity.class);
+        var exception = assertThrows(RuntimeException.class,
+                () -> apiClient.put("/collectivities/" + id + "/informations", payload, Collectivity.class));
+        log.info(exception.getMessage());
 
-        assertNotNull(actualCollectivity, "Unable to obtain financial accounts for collectivity.id=" + id);
-        log.info("Collectivity: " + actualCollectivity);
+        assertTrue(exception.getMessage().contains("HTTP Error: 400"));
+        assertTrue(exception.getMessage().contains("already assigned"));
     }
 
     @Test
