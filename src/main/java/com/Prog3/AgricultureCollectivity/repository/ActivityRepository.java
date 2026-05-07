@@ -206,7 +206,7 @@ public class ActivityRepository {
             } catch (SQLException rollbackEx) {
                 throw new RuntimeException("Failed to rollback attendance save", rollbackEx);
             }
-            throw new RuntimeException("Failed to save attendance", e);
+            throw new RuntimeException("Failed to save attendance " + e.getMessage(), e);
         } finally {
             try {
                 connection.setAutoCommit(true);

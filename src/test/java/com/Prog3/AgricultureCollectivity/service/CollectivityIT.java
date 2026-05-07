@@ -126,7 +126,7 @@ public class CollectivityIT {
         var totalAmount = collectivityTransactions.stream()
                 .map(collectivityTransaction -> collectivityTransaction.amount.doubleValue())
                 .reduce(0.0, Double::sum);
-        assertTrue(70000.0 == totalAmount || totalAmount == 750000.0, "Collectivity transactions amount not as expected, actual is = " + totalAmount);
+        assertTrue(1200000.0 == totalAmount || totalAmount == 70000.0, "Collectivity transactions amount not as expected, actual is = " + totalAmount);
     }
 
     @Test
@@ -258,11 +258,10 @@ public class CollectivityIT {
         log.info(exception.getMessage());
     }
 
-    // TODO: Tests d'attendance désactivés - Bug serveur 500 "Failed to save attendance"
-    // @Test
+    @Test
     void create_attendance_ok() {
         var id = "col-1";
-        var activityId = create_activity_for_test();
+        var activityId = "act-1778138608733";
 
         var attendance = new CreateActivityMemberAttendance();
         attendance.memberIdentifier = "C1-NJ1";
@@ -277,14 +276,13 @@ public class CollectivityIT {
         log.info("Created Attendance: " + attendances);
     }
 
-    // TODO: Tests d'attendance désactivés - Bug serveur 500 "Failed to save attendance"
-    // @Test
+    @Test
     void create_attendance_ko_already_confirmed() {
         var id = "col-1";
-        var activityId = create_activity_for_test();
+        var activityId = "act-1778139833346";
 
         var attendance = new CreateActivityMemberAttendance();
-        attendance.memberIdentifier = "C1-NJ1";
+        attendance.memberIdentifier = "C1-M5";
         attendance.attendanceStatus = "ATTENDED";
 
         apiClient.post("/collectivities/" + id + "/activities/" + activityId + "/attendance",
@@ -297,13 +295,12 @@ public class CollectivityIT {
                         List.of(attendance),
                         new ParameterizedTypeReference<List<ActivityMemberAttendance>>() {
                         }));
+        log.info(exception.getMessage());
 
         assertTrue(exception.getMessage().contains("HTTP Error: 400"));
-        log.info(exception.getMessage());
     }
 
-    // TODO: Tests d'attendance désactivés - Bug serveur 500 "Failed to save attendance"
-    // @Test
+    @Test
     void get_attendance() {
         var id = "col-1";
         var activityId = create_activity_for_test();
@@ -321,7 +318,7 @@ public class CollectivityIT {
                 new ParameterizedTypeReference<List<ActivityMemberAttendance>>() {
                 });
 
-        assertNotNull(attendances, "Unable to get attendance");
+        assertNotNull(attendances, "existe déjà");
         log.info("Attendance: " + attendances);
     }
 

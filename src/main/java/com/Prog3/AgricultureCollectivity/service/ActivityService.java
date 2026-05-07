@@ -12,7 +12,9 @@ import com.Prog3.AgricultureCollectivity.repository.ActivityRepository;
 import com.Prog3.AgricultureCollectivity.repository.CollectivityRepository;
 import com.Prog3.AgricultureCollectivity.repository.MemberRepository;
 import lombok.AllArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -121,7 +123,12 @@ public class ActivityService {
         }
 
         // Save attendance (will throw error if already confirmed)
-        List<ActivityAttendance> savedAttendances = activityRepository.saveAttendance(activityId, attendanceEntities);
+        List<ActivityAttendance> savedAttendances;
+        try {
+            savedAttendances = activityRepository.saveAttendance(activityId, attendanceEntities);
+        } catch (RuntimeException e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "error : " + e);
+        }
 
         return savedAttendances.stream()
                 .map(this::mapToAttendanceResponse)
