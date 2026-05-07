@@ -17,7 +17,7 @@ public class Datasource {
 
         // Vérifie bien que ces noms correspondent à ton fichier .env
         String dbUrl = dotenv.get("DB_URL");
-        String dbUser = dotenv.get("DB_USERNAME"); // Changé de DB_USER à DB_USERNAME
+        String dbUser = dotenv.get("DB_USER");
         String dbPassword = dotenv.get("DB_PASSWORD");
 
         try {

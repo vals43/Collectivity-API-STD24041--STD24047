@@ -171,7 +171,7 @@ Content-Type: application/json
 ]
 
 ### 17. Get attendance for activity
-GET http://localhost:8080/collectivities/col-1/activities/act-1778131665778/attendance
+GET http://localhost:8080/collectivities/col-1/activities/act-/attendance
 Content-Type: application/json
 
 ### Bonus 2 : Adjusted statistics (G & H complete)
