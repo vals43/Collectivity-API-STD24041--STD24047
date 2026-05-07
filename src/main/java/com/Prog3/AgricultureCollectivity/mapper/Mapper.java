@@ -89,10 +89,10 @@ public class Mapper {
                     .amount(balance)
                     .holderName(ba.getHolderName())
                     .bankName(ba.getBankName())
-                    .bankCode(ba.getBankCode() != null ? Integer.parseInt(ba.getBankCode()) : null)
-                    .bankBranchCode(ba.getBranchCode() != null ? Integer.parseInt(ba.getBranchCode()) : null)
-                    .bankAccountNumber(ba.getAccountNumber() != null ? Integer.parseInt(ba.getAccountNumber()) : null)
-                    .bankAccountKey(ba.getRibKey() != null ? Integer.parseInt(ba.getRibKey()) : null)
+                    .bankCode(ba.getBankCode())
+                    .bankBranchCode(ba.getBranchCode())
+                    .bankAccountNumber(ba.getAccountNumber())
+                    .bankAccountKey(ba.getRibKey())
                     .build();
 
         } else if (account.getMobileMoneyAccount() != null) {
@@ -129,10 +129,10 @@ public class Mapper {
                     .amount(balance)
                     .holderName(ba.getHolderName())
                     .bankName(ba.getBankName())
-                    .bankCode(ba.getBankCode() != null ? Integer.parseInt(ba.getBankCode()) : null)
-                    .bankBranchCode(ba.getBranchCode() != null ? Integer.parseInt(ba.getBranchCode()) : null)
-                    .bankAccountNumber(ba.getAccountNumber() != null ? Integer.parseInt(ba.getAccountNumber()) : null)
-                    .bankAccountKey(ba.getRibKey() != null ? Integer.parseInt(ba.getRibKey()) : null)
+                    .bankCode(ba.getBankCode())
+                    .bankBranchCode(ba.getBranchCode())
+                    .bankAccountNumber(ba.getAccountNumber())
+                    .bankAccountKey(ba.getRibKey())
                     .build();
 
         } else if (account.getMobileMoneyAccount() != null) {

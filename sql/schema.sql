@@ -178,174 +178,316 @@ CREATE TABLE IF NOT EXISTS activity_attendance (
     UNIQUE (id_activity, id_member)
     );
 
--- ============================================
--- INSERT DATA FROM PDF ONLY
--- ============================================
+-- ============================================================
+-- DONNÉES DE TEST — Évaluation 6 Mai 2026
+-- ============================================================
 
--- Federation
-INSERT INTO federation (id, name) VALUES ('fed-1', 'Fédération Agricole de Madagascar');
+-- ============================================================
+-- COLLECTIVITÉS (Tableau 1)
+-- ============================================================
+INSERT INTO collectivities (id, number, name, location, specialty, creation_date)
+VALUES
+    ('col-1', '1', 'Mpanorina',      'Ambatondrazaka', 'Riziculture',  NOW()),
+    ('col-2', '2', 'Dobo voalohany', 'Ambatondrazaka', 'Pisciculture', NOW()),
+    ('col-3', '3', 'Tantely mamy',   'Brickaville',    'Apiculture',   NOW());
 
--- Collectivities (Tableau 1, Page 1)
-INSERT INTO collectivity (id, number, name, speciality, creation_date, federation_approval, authorization_date, location, id_federation) VALUES
-                                                                                                                                             ('col-1', '1', 'Mpanorina', 'Riziculture', '2026-01-01', TRUE, '2026-01-01', 'Ambatondrazaka', 'fed-1'),
-                                                                                                                                             ('col-2', '2', 'Dobo voalahany', 'Pisciculture', '2026-01-01', TRUE, '2026-01-01', 'Ambatondrazaka', 'fed-1'),
-                                                                                                                                             ('col-3', '3', 'Tantely mamy', 'Apiculture', '2026-01-01', TRUE, '2026-01-01', 'Brickaville', 'fed-1');
+-- ============================================================
+-- MEMBRES (Tableaux 2, 3, 4)
+-- ============================================================
+INSERT INTO members (id, last_name, first_name, birth_date, gender, address, profession, phone, email)
+VALUES
+    ('C1-M1', 'Nom membre 1',  'Prénom membre 1',  '1980-02-01', 'MALE',   'Lot II V M Ambato.',   'Riziculteur', '0341234567', 'member.1@fed-agri.mg'),
+    ('C1-M2', 'Nom membre 2',  'Prénom membre 2',  '1982-03-05', 'MALE',   'Lot II F Ambato.',     'Agriculteur', '0321234567', 'member.2@fed-agri.mg'),
+    ('C1-M3', 'Nom membre 3',  'Prénom membre 3',  '1992-03-10', 'MALE',   'Lot II J Ambato.',     'Collecteur',  '0331234567', 'member.3@fed-agri.mg'),
+    ('C1-M4', 'Nom membre 4',  'Prénom membre 4',  '1988-05-22', 'FEMALE', 'Lot A K 50 Ambato.',   'Distributeur','0381234567', 'member.4@fed-agri.mg'),
+    ('C1-M5', 'Nom membre 5',  'Prénom membre 5',  '1999-08-21', 'MALE',   'Lot UV 80 Ambato.',    'Riziculteur', '0373434567', 'member.5@fed-agri.mg'),
+    ('C1-M6', 'Nom membre 6',  'Prénom membre 6',  '1998-08-22', 'FEMALE', 'Lot UV 6 Ambato.',     'Riziculteur', '0372234567', 'member.6@fed-agri.mg'),
+    ('C1-M7', 'Nom membre 7',  'Prénom membre 7',  '1998-01-31', 'MALE',   'Lot UV 7 Ambato.',     'Riziculteur', '0374234567', 'member.7@fed-agri.mg'),
+    ('C1-M8', 'Nom membre 8',  'Prénom membre 8',  '1975-08-20', 'MALE',   'Lot UV 8 Ambato.',     'Riziculteur', '0370234567', 'member.8@fed-agri.mg'),
+    ('C3-M1', 'Nom membre 9',  'Prénom membre 9',  '1988-01-02', 'MALE',   'Lot 33 J Antsirabe',   'Apiculteur',  '034034567',  'member.9@fed-agri.mg'),
+    ('C3-M2', 'Nom membre 10', 'Prénom membre 10', '1982-03-05', 'MALE',   'Lot 2 J Antsirabe',    'Agriculteur', '0338634567', 'member.10@fed-agri.mg'),
+    ('C3-M3', 'Nom membre 11', 'Prénom membre 11', '1992-03-12', 'MALE',   'Lot 8 KM Antsirabe',   'Collecteur',  '0338234567', 'member.11@fed-agri.mg'),
+    ('C3-M4', 'Nom membre 12', 'Prénom membre 12', '1988-05-10', 'FEMALE', 'Lot A K 50 Antsirabe', 'Distributeur','0382334567', 'member.12@fed-agri.mg'),
+    ('C3-M5', 'Nom membre 13', 'Prénom membre 13', '1999-08-11', 'MALE',   'Lot UV 80 Antsirabe',  'Apiculteur',  '0373365567', 'member.13@fed-agri.mg'),
+    ('C3-M6', 'Nom membre 14', 'Prénom membre 14', '1998-08-09', 'FEMALE', 'Lot UV 6 Antsirabe',   'Apiculteur',  '0378234567', 'member.14@fed-agri.mg'),
+    ('C3-M7', 'Nom membre 15', 'Prénom membre 15', '1998-01-13', 'MALE',   'Lot UV 7 Antsirabe',   'Apiculteur',  '0374914567', 'member.15@fed-agri.mg'),
+    ('C3-M8', 'Nom membre 16', 'Prénom membre 16', '1975-08-02', 'MALE',   'Lot UV 8 Antsirabe',   'Apiculteur',  '0370634567', 'member.16@fed-agri.mg');
 
--- Members for Collectivity 1 (Tableau 2, Page 2)
-INSERT INTO member (id, first_name, last_name, birth_date, gender, address, profession, phone_number, email, enrolment_date) VALUES
-                                                                                                                                 ('C1-M1', 'Nom membre 1', 'Prénom membre 1', '1980-02-01', 'MALE', 'Lot II V M Ambato.', 'Riziculteur', '0341234567', 'member.1@fed-agri.mg', '2025-01-01'),
-                                                                                                                                 ('C1-M2', 'Nom membre 2', 'Prénom membre 2', '1982-03-05', 'MALE', 'Lot II F Ambato.', 'Agriculteur', '0321234567', 'member.2@fed-agri.mg', '2025-01-01'),
-                                                                                                                                 ('C1-M3', 'Nom membre 3', 'Prénom membre 3', '1992-03-10', 'MALE', 'Lot II J Ambato.', 'Collecteur', '0331234567', 'member.3@fed-agrimg', '2025-01-01'),
-                                                                                                                                 ('C1-M4', 'Nom membre 4', 'Prénom membre 4', '1988-05-22', 'FEMALE', 'Lot A K 50 Ambato.', 'Distributeur', '0381234567', 'member.4@fed-agri.mg', '2025-01-01'),
-                                                                                                                                 ('C1-M5', 'Nom membre 5', 'Prénom membre 5', '1999-08-21', 'MALE', 'Lot UV 80 Ambato.', 'Riziculteur', '0373434567', 'member.5@fed-agri.mg', '2025-01-01'),
-                                                                                                                                 ('C1-M6', 'Nom membre 6', 'Prénom membre 6', '1998-08-22', 'FEMALE', 'Lot UV 6 Ambato.', 'Riziculteur', '0372234567', 'member.6@fed-agri.mg', '2025-01-01'),
-                                                                                                                                 ('C1-M7', 'Nom membre 7', 'Prénom membre 7', '1998-01-31', 'MALE', 'Lot UV 7 Ambato.', 'Riziculteur', '0374234567', 'member.7@fed-agri.mg', '2025-01-01'),
-                                                                                                                                 ('C1-M8', 'Nom membre 8', 'Prénom membre 6', '1975-08-20', 'MALE', 'Lot UV 8 Ambato.', 'Riziculteur', '0370234567', 'member.8@fed-agri.mg', '2025-01-01');
+-- ============================================================
+-- MEMBERSHIPS — start_date à 01/01/2026 pour tous les anciens
+-- ============================================================
 
--- Members for Collectivity 2 (Tableau Page 3) - Different emails from C1
-INSERT INTO member (id, first_name, last_name, birth_date, gender, address, profession, phone_number, email, enrolment_date) VALUES
-                                                                                                                                 ('C2-M1', 'Nom membre 1', 'Prénom membre 1', '1980-02-01', 'MALE', 'Lot II V M Ambato.', 'Riziculteur', '0341234567', 'c2.member.1@fed-agri.mg', '2025-01-01'),
-                                                                                                                                 ('C2-M2', 'Nom membre 2', 'Prénom membre 2', '1982-03-05', 'MALE', 'Lot II F Ambato.', 'Agriculteur', '0321234567', 'c2.member.2@fed-agri.mg', '2025-01-01'),
-                                                                                                                                 ('C2-M3', 'Nom membre 3', 'Prénom membre 3', '1992-03-10', 'MALE', 'Lot II J Ambato.', 'Collecteur', '0331234567', 'c2.member.3@fed-agri.mg', '2025-01-01'),
-                                                                                                                                 ('C2-M4', 'Nom membre 4', 'Prénom membre 4', '1988-05-22', 'FEMALE', 'Lot A K 50 Ambato.', 'Distributeur', '0381234567', 'c2.member.4@fed-agri.mg', '2025-01-01'),
-                                                                                                                                 ('C2-M5', 'Nom membre 5', 'Prénom membre 5', '1999-08-21', 'MALE', 'Lot UV 80 Ambato.', 'Riziculteur', '0373434567', 'c2.member.5@fed-agri.mg', '2025-01-01'),
-                                                                                                                                 ('C2-M6', 'Nom membre 6', 'Prénom membre 6', '1998-08-22', 'FEMALE', 'Lot UV 6 Ambato.', 'Riziculteur', '0372234567', 'c2.member.6@fed-agri.mg', '2025-01-01'),
-                                                                                                                                 ('C2-M7', 'Nom membre 7', 'Prénom membre 7', '1998-01-31', 'MALE', 'Lot UV 7 Ambato.', 'Riziculteur', '0374234567', 'c2.member.7@fed-agri.mg', '2025-01-01'),
-                                                                                                                                 ('C2-M8', 'Nom membre 8', 'Prénom membre 6', '1975-08-20', 'MALE', 'Lot UV 8 Ambato.', 'Riziculteur', '0370234567', 'c2.member.8@fed-agri.mg', '2025-01-01');
+-- Collectivité 1
+INSERT INTO memberships (id, member_id, collectivity_id, occupation, start_date)
+VALUES
+    (gen_random_uuid()::VARCHAR, 'C1-M1', 'col-1', 'PRESIDENT',      '2026-01-01'),
+    (gen_random_uuid()::VARCHAR, 'C1-M2', 'col-1', 'VICE_PRESIDENT', '2026-01-01'),
+    (gen_random_uuid()::VARCHAR, 'C1-M3', 'col-1', 'SECRETARY',      '2026-01-01'),
+    (gen_random_uuid()::VARCHAR, 'C1-M4', 'col-1', 'TREASURER',      '2026-01-01'),
+    (gen_random_uuid()::VARCHAR, 'C1-M5', 'col-1', 'SENIOR',         '2026-01-01'),
+    (gen_random_uuid()::VARCHAR, 'C1-M6', 'col-1', 'SENIOR',         '2026-01-01'),
+    (gen_random_uuid()::VARCHAR, 'C1-M7', 'col-1', 'SENIOR',         '2026-01-01'),
+    (gen_random_uuid()::VARCHAR, 'C1-M8', 'col-1', 'SENIOR',         '2026-01-01');
 
--- Members for Collectivity 3 (Tableau Page 4)
-INSERT INTO member (id, first_name, last_name, birth_date, gender, address, profession, phone_number, email, enrolment_date) VALUES
-                                                                                                                                 ('C3-M1', 'Nom membre 9', 'Prénom membre 9', '1988-01-02', 'MALE', 'Lot 33 J Antsirabe', 'Apiculteur', '034034567', 'member.9@fed-agri.mg', '2025-06-01'),
-                                                                                                                                 ('C3-M2', 'Nom membre 10', 'Prénom membre 10', '1982-03-05', 'MALE', 'Lot 2 J Antsirabe', 'Agriculteur', '0338634567', 'member.10@fed-agri.mg', '2025-06-01'),
-                                                                                                                                 ('C3-M3', 'Nom membre 11', 'Prénom membre 11', '1992-03-12', 'MALE', 'Lot 8 KM Antsirabe', 'Collecteur', '0338234567', 'member.11@fed-agrimg', '2025-06-01'),
-                                                                                                                                 ('C3-M4', 'Nom membre 12', 'Prénom membre 12', '1988-05-10', 'FEMALE', 'Lot A K 50 Antsirabe', 'Distributeur', '0382334567', 'member.12@fed-agri.mg', '2025-06-01'),
-                                                                                                                                 ('C3-M5', 'Nom membre 13', 'Prénom membre 13', '1999-08-11', 'MALE', 'Lot UV 80 Antsirabe.', 'Apiculteur', '0373365567', 'member.13@fed-agri.mg', '2025-06-01'),
-                                                                                                                                 ('C3-M6', 'Nom membre 14', 'Prénom membre 14', '1998-08-09', 'FEMALE', 'Lot UV 6 Antsirabe.', 'Apiculteur', '0378234567', 'member.14@fed-agri.mg', '2025-06-01'),
-                                                                                                                                 ('C3-M7', 'Nom membre 15', 'Prénom membre 15', '1998-01-13', 'MALE', 'Lot UV 7 Antsirabe', 'Apiculteur', '0374914567', 'member.15@fed-agri.mg', '2025-06-01'),
-                                                                                                                                 ('C3-M8', 'Nom membre 16', 'Prénom membre 16', '1975-08-02', 'MALE', 'Lot UV 8 Antsirabe', 'Apiculteur', '0370634567', 'member.16@fed-agri.mg', '2025-06-01');
+-- Collectivité 2
+INSERT INTO memberships (id, member_id, collectivity_id, occupation, start_date)
+VALUES
+    (gen_random_uuid()::VARCHAR, 'C1-M1', 'col-2', 'SENIOR',         '2026-01-01'),
+    (gen_random_uuid()::VARCHAR, 'C1-M2', 'col-2', 'SENIOR',         '2026-01-01'),
+    (gen_random_uuid()::VARCHAR, 'C1-M3', 'col-2', 'SENIOR',         '2026-01-01'),
+    (gen_random_uuid()::VARCHAR, 'C1-M4', 'col-2', 'SENIOR',         '2026-01-01'),
+    (gen_random_uuid()::VARCHAR, 'C1-M5', 'col-2', 'PRESIDENT',      '2026-01-01'),
+    (gen_random_uuid()::VARCHAR, 'C1-M6', 'col-2', 'VICE_PRESIDENT', '2026-01-01'),
+    (gen_random_uuid()::VARCHAR, 'C1-M7', 'col-2', 'SECRETARY',      '2026-01-01'),
+    (gen_random_uuid()::VARCHAR, 'C1-M8', 'col-2', 'TREASURER',      '2026-01-01');
 
--- Member collectivity associations for Collectivity 1 (Tableau 2, Page 2)
-INSERT INTO member_collectivity (id_member, id_collectivity, occupation, start_date) VALUES
-                                                                                         ('C1-M1', 'col-1', 'PRESIDENT', '2026-01-01'),
-                                                                                         ('C1-M2', 'col-1', 'VICE_PRESIDENT', '2026-01-01'),
-                                                                                         ('C1-M3', 'col-1', 'SECRETARY', '2026-01-01'),
-                                                                                         ('C1-M4', 'col-1', 'TREASURER', '2026-01-01'),
-                                                                                         ('C1-M5', 'col-1', 'SENIOR', '2026-01-01'),
-                                                                                         ('C1-M6', 'col-1', 'SENIOR', '2026-01-01'),
-                                                                                         ('C1-M7', 'col-1', 'SENIOR', '2026-01-01'),
-                                                                                         ('C1-M8', 'col-1', 'SENIOR', '2026-01-01');
+-- Collectivité 3
+INSERT INTO memberships (id, member_id, collectivity_id, occupation, start_date)
+VALUES
+    (gen_random_uuid()::VARCHAR, 'C3-M1', 'col-3', 'PRESIDENT',      '2026-01-01'),
+    (gen_random_uuid()::VARCHAR, 'C3-M2', 'col-3', 'VICE_PRESIDENT', '2026-01-01'),
+    (gen_random_uuid()::VARCHAR, 'C3-M3', 'col-3', 'SECRETARY',      '2026-01-01'),
+    (gen_random_uuid()::VARCHAR, 'C3-M4', 'col-3', 'TREASURER',      '2026-01-01'),
+    (gen_random_uuid()::VARCHAR, 'C3-M5', 'col-3', 'SENIOR',         '2026-01-01'),
+    (gen_random_uuid()::VARCHAR, 'C3-M6', 'col-3', 'SENIOR',         '2026-01-01'),
+    (gen_random_uuid()::VARCHAR, 'C3-M7', 'col-3', 'SENIOR',         '2026-01-01'),
+    (gen_random_uuid()::VARCHAR, 'C3-M8', 'col-3', 'SENIOR',         '2026-01-01');
 
--- Member collectivity associations for Collectivity 2 (Tableau Page 3)
-INSERT INTO member_collectivity (id_member, id_collectivity, occupation, start_date) VALUES
-                                                                                         ('C2-M1', 'col-2', 'SENIOR', '2026-01-01'),
-                                                                                         ('C2-M2', 'col-2', 'SENIOR', '2026-01-01'),
-                                                                                         ('C2-M3', 'col-2', 'SENIOR', '2026-01-01'),
-                                                                                         ('C2-M4', 'col-2', 'SENIOR', '2026-01-01'),
-                                                                                         ('C2-M5', 'col-2', 'PRESIDENT', '2026-01-01'),
-                                                                                         ('C2-M6', 'col-2', 'VICE_PRESIDENT', '2026-01-01'),
-                                                                                         ('C2-M7', 'col-2', 'SECRETARY', '2026-01-01'),
-                                                                                         ('C2-M8', 'col-2', 'TREASURER', '2026-01-01');
+-- ============================================================
+-- REFERALS
+-- ============================================================
+INSERT INTO referals (id, member_id, referee_id) VALUES
+                                                     (gen_random_uuid()::VARCHAR, 'C1-M3', 'C1-M1'),
+                                                     (gen_random_uuid()::VARCHAR, 'C1-M3', 'C1-M2'),
+                                                     (gen_random_uuid()::VARCHAR, 'C1-M4', 'C1-M1'),
+                                                     (gen_random_uuid()::VARCHAR, 'C1-M4', 'C1-M2'),
+                                                     (gen_random_uuid()::VARCHAR, 'C1-M5', 'C1-M1'),
+                                                     (gen_random_uuid()::VARCHAR, 'C1-M5', 'C1-M2'),
+                                                     (gen_random_uuid()::VARCHAR, 'C1-M6', 'C1-M1'),
+                                                     (gen_random_uuid()::VARCHAR, 'C1-M6', 'C1-M2'),
+                                                     (gen_random_uuid()::VARCHAR, 'C1-M7', 'C1-M1'),
+                                                     (gen_random_uuid()::VARCHAR, 'C1-M7', 'C1-M2'),
+                                                     (gen_random_uuid()::VARCHAR, 'C1-M8', 'C1-M6'),
+                                                     (gen_random_uuid()::VARCHAR, 'C1-M8', 'C1-M7'),
+                                                     (gen_random_uuid()::VARCHAR, 'C3-M3', 'C3-M1'),
+                                                     (gen_random_uuid()::VARCHAR, 'C3-M3', 'C3-M2'),
+                                                     (gen_random_uuid()::VARCHAR, 'C3-M4', 'C3-M1'),
+                                                     (gen_random_uuid()::VARCHAR, 'C3-M4', 'C3-M2'),
+                                                     (gen_random_uuid()::VARCHAR, 'C3-M5', 'C3-M1'),
+                                                     (gen_random_uuid()::VARCHAR, 'C3-M5', 'C3-M2'),
+                                                     (gen_random_uuid()::VARCHAR, 'C3-M6', 'C3-M1'),
+                                                     (gen_random_uuid()::VARCHAR, 'C3-M6', 'C3-M2'),
+                                                     (gen_random_uuid()::VARCHAR, 'C3-M7', 'C3-M1'),
+                                                     (gen_random_uuid()::VARCHAR, 'C3-M7', 'C3-M2'),
+                                                     (gen_random_uuid()::VARCHAR, 'C3-M8', 'C3-M1'),
+                                                     (gen_random_uuid()::VARCHAR, 'C3-M8', 'C3-M2');
 
--- Member collectivity associations for Collectivity 3 (Tableau Page 4)
-INSERT INTO member_collectivity (id_member, id_collectivity, occupation, start_date) VALUES
-                                                                                         ('C3-M1', 'col-3', 'PRESIDENT', '2026-01-01'),
-                                                                                         ('C3-M2', 'col-3', 'VICE_PRESIDENT', '2026-01-01'),
-                                                                                         ('C3-M3', 'col-3', 'SECRETARY', '2026-01-01'),
-                                                                                         ('C3-M4', 'col-3', 'TREASURER', '2026-01-01'),
-                                                                                         ('C3-M5', 'col-3', 'SENIOR', '2026-01-01'),
-                                                                                         ('C3-M6', 'col-3', 'SENIOR', '2026-01-01'),
-                                                                                         ('C3-M7', 'col-3', 'SENIOR', '2026-01-01'),
-                                                                                         ('C3-M8', 'col-3', 'SENIOR', '2026-01-01');
+-- ============================================================
+-- COMPTES FINANCIERS
+-- ============================================================
 
--- Referees (from ID des membres référents column in PDF)
-INSERT INTO member_referee (id_candidate, id_referee, relationship) VALUES
--- Collectivity 1 referees (Page 2)
-('C1-M3', 'C1-M1', 'Parrainage'),
-('C1-M3', 'C1-M2', 'Parrainage'),
-('C1-M4', 'C1-M1', 'Parrainage'),
-('C1-M4', 'C1-M2', 'Parrainage'),
-('C1-M5', 'C1-M1', 'Parrainage'),
-('C1-M5', 'C1-M2', 'Parrainage'),
-('C1-M6', 'C1-M1', 'Parrainage'),
-('C1-M6', 'C1-M2', 'Parrainage'),
-('C1-M7', 'C1-M1', 'Parrainage'),
-('C1-M7', 'C1-M2', 'Parrainage'),
-('C1-M8', 'C1-M6', 'Parrainage'),
-('C1-M8', 'C1-M7', 'Parrainage'),
--- Collectivity 2 referees (Page 3)
-('C2-M3', 'C1-M1', 'Parrainage'),
-('C2-M3', 'C1-M2', 'Parrainage'),
-('C2-M4', 'C1-M1', 'Parrainage'),
-('C2-M4', 'C1-M2', 'Parrainage'),
-('C2-M5', 'C1-M1', 'Parrainage'),
-('C2-M5', 'C1-M2', 'Parrainage'),
-('C2-M6', 'C1-M1', 'Parrainage'),
-('C2-M6', 'C1-M2', 'Parrainage'),
-('C2-M7', 'C1-M1', 'Parrainage'),
-('C2-M7', 'C1-M2', 'Parrainage'),
-('C2-M8', 'C1-M6', 'Parrainage'),
-('C2-M8', 'C1-M7', 'Parrainage'),
--- Collectivity 3 referees (Page 4)
-('C3-M1', 'C1-M1', 'Parrainage'),
-('C3-M1', 'C1-M2', 'Parrainage'),
-('C3-M2', 'C1-M1', 'Parrainage'),
-('C3-M2', 'C1-M2', 'Parrainage'),
-('C3-M3', 'C3-M1', 'Parrainage'),
-('C3-M3', 'C3-M2', 'Parrainage'),
-('C3-M4', 'C3-M1', 'Parrainage'),
-('C3-M4', 'C3-M2', 'Parrainage'),
-('C3-M5', 'C3-M1', 'Parrainage'),
-('C3-M5', 'C3-M2', 'Parrainage'),
-('C3-M6', 'C3-M1', 'Parrainage'),
-('C3-M6', 'C3-M2', 'Parrainage'),
-('C3-M7', 'C3-M1', 'Parrainage'),
-('C3-M7', 'C3-M2', 'Parrainage'),
-('C3-M8', 'C3-M1', 'Parrainage'),
-('C3-M8', 'C3-M2', 'Parrainage');
+-- Collectivité 1
+INSERT INTO accounts (id, collectivity_id, type, balance, holder_name, mobile_banking_service, mobile_number)
+VALUES
+    ('C1-A-CASH',     'col-1', 'CASH',         0, NULL,        NULL,           NULL),
+    ('C1-A-MOBILE-1', 'col-1', 'MOBILE_MONEY', 0, 'Mpanorina', 'ORANGE_MONEY', '0370489612');
 
--- Accounts (Tableau Page 6)
-INSERT INTO account (id, id_collectivity) VALUES
-                                              ('C1-A-CASH', 'col-1'),
-                                              ('C1-A-MOBILE-1', 'col-1'),
-                                              ('C2-A-CASH', 'col-2'),
-                                              ('C2-A-MOBILE-1', 'col-2'),
-                                              ('C3-A-CASH', 'col-3');
+-- Collectivité 2
+INSERT INTO accounts (id, collectivity_id, type, balance, holder_name, mobile_banking_service, mobile_number)
+VALUES
+    ('C2-A-CASH',     'col-2', 'CASH',         0, NULL,              NULL,           NULL),
+    ('C2-A-MOBILE-1', 'col-2', 'MOBILE_MONEY', 0, 'Dobo voalohany', 'ORANGE_MONEY', '0320489612');
 
--- Cash accounts (Tableau Page 6)
-INSERT INTO cash_account (id_account) VALUES
-                                          ('C1-A-CASH'),
-                                          ('C2-A-CASH'),
-                                          ('C3-A-CASH');
+-- Collectivité 3 — caisse existante
+INSERT INTO accounts (id, collectivity_id, type, balance)
+VALUES ('C3-A-CASH', 'col-3', 'CASH', 0);
 
--- Mobile money accounts (Tableau Page 6)
-INSERT INTO mobile_money_account (id_account, holder_name, service_name, phone_number) VALUES
-                                                                                           ('C1-A-MOBILE-1', 'Mpanorina', 'ORANGE_MONEY', '0370489612'),
-                                                                                           ('C2-A-MOBILE-1', 'Dobo voalohany', 'ORANGE_MONEY', '0320489612');
+-- Collectivité 3 — comptes bancaires (BMOI et BRED)
+INSERT INTO accounts (id, collectivity_id, type, balance, holder_name, bank_name, bank_account_number)
+VALUES
+    ('C3-A-BANK-1', 'col-3', 'BANK', 0, 'Koto',  'BMOI', '0000400001123456789012'),
+    ('C3-A-BANK-2', 'col-3', 'BANK', 0, 'Naivo', 'BRED', '0000800003456789012358');
 
--- Cotisation plans (Tableau 5, 6, 7 Page 5)
-INSERT INTO cotisation_plan (id, label, id_collectivity, status, frequency, eligible_from, amount) VALUES
-                                                                                                       ('cot-1', 'Cotisation annuelle', 'col-1', 'ACTIVE', 'ANNUALLY', '2026-01-01', 100000),
-                                                                                                       ('cot-2', 'Cotisation annuelle', 'col-2', 'ACTIVE', 'ANNUALLY', '2026-01-01', 100000),
-                                                                                                       ('cot-3', 'Cotisation annuelle', 'col-3', 'ACTIVE', 'ANNUALLY', '2026-01-01', 50000);
+-- Collectivité 3 — compte mobile money (MVOLA)
+INSERT INTO accounts (id, collectivity_id, type, balance, holder_name, mobile_banking_service, mobile_number)
+VALUES ('C3-A-MOBILE-1', 'col-3', 'MOBILE_MONEY', 0, 'Kolo', 'MVOLA', '0341889612');
 
--- Transactions/Payments for Collectivity 1 (Tableau 8 Page 7, Tableau 9 Page 8)
-INSERT INTO transaction (id, id_collectivity, id_member, transaction_type, amount, transaction_date, payment_mode, id_account) VALUES
-                                                                                                                                   ('trx-1-1', 'col-1', 'C1-M1', 'IN', 100000, '2026-01-01', 'CASH', 'C1-A-CASH'),
-                                                                                                                                   ('trx-1-2', 'col-1', 'C1-M2', 'IN', 100000, '2026-01-01', 'CASH', 'C1-A-CASH'),
-                                                                                                                                   ('trx-1-3', 'col-1', 'C1-M3', 'IN', 100000, '2026-01-01', 'CASH', 'C1-A-CASH'),
-                                                                                                                                   ('trx-1-4', 'col-1', 'C1-M4', 'IN', 100000, '2026-01-01', 'CASH', 'C1-A-CASH'),
-                                                                                                                                   ('trx-1-5', 'col-1', 'C1-M5', 'IN', 100000, '2026-01-01', 'CASH', 'C1-A-CASH'),
-                                                                                                                                   ('trx-1-6', 'col-1', 'C1-M6', 'IN', 100000, '2026-01-01', 'CASH', 'C1-A-CASH'),
-                                                                                                                                   ('trx-1-7', 'col-1', 'C1-M7', 'IN', 60000, '2026-01-01', 'CASH', 'C1-A-CASH'),
-                                                                                                                                   ('trx-1-8', 'col-1', 'C1-M8', 'IN', 90000, '2026-01-01', 'CASH', 'C1-A-CASH');
+-- ============================================================
+-- COTISATIONS (Tableaux 12, 13, 14)
+-- ============================================================
 
--- Transactions/Payments for Collectivity 2 (Tableau 10 Page 9, Tableau 11 Page 10)
-INSERT INTO transaction (id, id_collectivity, id_member, transaction_type, amount, transaction_date, payment_mode, id_account) VALUES
-                                                                                                                                   ('trx-2-1', 'col-2', 'C2-M1', 'IN', 60000, '2026-01-01', 'CASH', 'C2-A-CASH'),
-                                                                                                                                   ('trx-2-2', 'col-2', 'C2-M2', 'IN', 90000, '2026-01-01', 'CASH', 'C2-A-CASH'),
-                                                                                                                                   ('trx-2-3', 'col-2', 'C2-M3', 'IN', 100000, '2026-01-01', 'CASH', 'C2-A-CASH'),
-                                                                                                                                   ('trx-2-4', 'col-2', 'C2-M4', 'IN', 100000, '2026-01-01', 'CASH', 'C2-A-CASH'),
-                                                                                                                                   ('trx-2-5', 'col-2', 'C2-M5', 'IN', 100000, '2026-01-01', 'CASH', 'C2-A-CASH'),
-                                                                                                                                   ('trx-2-6', 'col-2', 'C2-M6', 'IN', 100000, '2026-01-01', 'CASH', 'C2-A-CASH'),
-                                                                                                                                   ('trx-2-7', 'col-2', 'C2-M7', 'IN', 40000, '2026-01-01', 'MOBILE_BANKING', 'C2-A-MOBILE-1'),
-                                                                                                                                   ('trx-2-8', 'col-2', 'C2-M8', 'IN', 60000, '2026-01-01', 'MOBILE_BANKING', 'C2-A-MOBILE-1');
+-- col-1
+INSERT INTO fees (id, collectivity_id, eligible_from, amount, label, frequency, status)
+VALUES
+    ('cot-1', 'col-1', '2026-01-01', 200000.00, 'Cotisation annuelle', 'ANNUALLY',   'ACTIVE'),
+    ('cot-2', 'col-1', '2026-04-30', 20000.00,  'Famangiana',          'PUNCTUALLY', 'ACTIVE');
+
+-- col-2
+INSERT INTO fees (id, collectivity_id, eligible_from, amount, label, frequency, status)
+VALUES
+    ('cot-3', 'col-2', '2026-01-01', 200000.00, 'Cotisation annuelle', 'ANNUALLY', 'ACTIVE'),
+    ('cot-4', 'col-2', '2025-01-01', 100000.00, 'Cotisation 2025',     'ANNUALLY', 'INACTIVE');
+
+-- col-3
+INSERT INTO fees (id, collectivity_id, eligible_from, amount, label, frequency, status)
+VALUES
+    ('cot-5', 'col-3', '2026-04-01', 25000.00, 'Cotisation mensuelle', 'MONTHLY', 'ACTIVE');
+
+-- ============================================================
+-- PAIEMENTS (Tableaux 15, 16, 17)
+-- ============================================================
+
+-- col-1 (Tableau 15)
+-- C1-M1 et C1-M2 : CASH | C1-M3 et C1-M4 : MOBILE_MONEY (01/01/2026)
+-- C1-M5 : paiement partiel 150 000 (pas 200 000) | C1-M6, M7, M8 : CASH (01/05/2026)
+INSERT INTO payments (id, member_id, amount, membership_fee_id, credited_account_id, payment_method, creation_date)
+VALUES
+    (gen_random_uuid()::VARCHAR, 'C1-M1', 200000, 'cot-1', 'C1-A-CASH',     'CASH',           '2026-01-01'),
+    (gen_random_uuid()::VARCHAR, 'C1-M2', 200000, 'cot-1', 'C1-A-CASH',     'CASH',           '2026-01-01'),
+    (gen_random_uuid()::VARCHAR, 'C1-M3', 200000, 'cot-1', 'C1-A-MOBILE-1', 'MOBILE_BANKING', '2026-01-01'),
+    (gen_random_uuid()::VARCHAR, 'C1-M4', 200000, 'cot-1', 'C1-A-MOBILE-1', 'MOBILE_BANKING', '2026-01-01'),
+    (gen_random_uuid()::VARCHAR, 'C1-M5', 150000, 'cot-1', 'C1-A-MOBILE-1', 'MOBILE_BANKING', '2026-01-01'),
+    (gen_random_uuid()::VARCHAR, 'C1-M6', 100000, 'cot-1', 'C1-A-CASH',     'CASH',           '2026-05-01'),
+    (gen_random_uuid()::VARCHAR, 'C1-M7', 60000,  'cot-1', 'C1-A-CASH',     'CASH',           '2026-05-01'),
+    (gen_random_uuid()::VARCHAR, 'C1-M8', 90000,  'cot-1', 'C1-A-CASH',     'CASH',           '2026-05-01');
+
+-- Soldes col-1 :
+--   CASH     : 200k + 200k + 100k + 60k + 90k = 650 000  ✓
+--   MOBILE-1 : 200k + 200k + 150k             = 550 000  ✓
+UPDATE accounts SET balance = 650000 WHERE id = 'C1-A-CASH';
+UPDATE accounts SET balance = 550000 WHERE id = 'C1-A-MOBILE-1';
+
+-- col-2 (Tableau 16)
+INSERT INTO payments (id, member_id, amount, membership_fee_id, credited_account_id, payment_method, creation_date)
+VALUES
+    (gen_random_uuid()::VARCHAR, 'C1-M1', 120000, 'cot-3', 'C2-A-CASH',     'CASH',           '2026-01-01'),
+    (gen_random_uuid()::VARCHAR, 'C1-M2', 180000, 'cot-3', 'C2-A-CASH',     'CASH',           '2026-01-01'),
+    (gen_random_uuid()::VARCHAR, 'C1-M3', 200000, 'cot-3', 'C2-A-CASH',     'CASH',           '2026-01-01'),
+    (gen_random_uuid()::VARCHAR, 'C1-M4', 200000, 'cot-3', 'C2-A-CASH',     'CASH',           '2026-01-01'),
+    (gen_random_uuid()::VARCHAR, 'C1-M5', 200000, 'cot-3', 'C2-A-CASH',     'CASH',           '2026-01-01'),
+    (gen_random_uuid()::VARCHAR, 'C1-M6', 200000, 'cot-3', 'C2-A-CASH',     'CASH',           '2026-01-01'),
+    (gen_random_uuid()::VARCHAR, 'C1-M7', 80000,  'cot-3', 'C2-A-MOBILE-1', 'MOBILE_BANKING', '2026-01-01'),
+    (gen_random_uuid()::VARCHAR, 'C1-M8', 120000, 'cot-3', 'C2-A-MOBILE-1', 'MOBILE_BANKING', '2026-01-01');
+
+-- Soldes col-2 :
+--   CASH     : 120k + 180k + 200k + 200k + 200k + 200k = 1 100 000  ✓
+--   MOBILE-1 : 80k + 120k                               = 200 000    ✓
+UPDATE accounts SET balance = 1100000 WHERE id = 'C2-A-CASH';
+UPDATE accounts SET balance = 200000  WHERE id = 'C2-A-MOBILE-1';
+
+-- col-3 (Tableau 17)
+INSERT INTO payments (id, member_id, amount, membership_fee_id, credited_account_id, payment_method, creation_date)
+VALUES
+    -- Avril
+    (gen_random_uuid()::VARCHAR, 'C3-M1', 25000, 'cot-5', 'C3-A-BANK-1',   'BANK_TRANSFER', '2026-04-01'),
+    (gen_random_uuid()::VARCHAR, 'C3-M2', 25000, 'cot-5', 'C3-A-BANK-1',   'BANK_TRANSFER', '2026-04-01'),
+    (gen_random_uuid()::VARCHAR, 'C3-M3', 25000, 'cot-5', 'C3-A-BANK-1',   'BANK_TRANSFER', '2026-04-01'),
+    (gen_random_uuid()::VARCHAR, 'C3-M4', 25000, 'cot-5', 'C3-A-BANK-1',   'BANK_TRANSFER', '2026-04-01'),
+    (gen_random_uuid()::VARCHAR, 'C3-M5', 25000, 'cot-5', 'C3-A-BANK-2',   'BANK_TRANSFER', '2026-04-01'),
+    (gen_random_uuid()::VARCHAR, 'C3-M6', 25000, 'cot-5', 'C3-A-BANK-2',   'BANK_TRANSFER', '2026-04-01'),
+    (gen_random_uuid()::VARCHAR, 'C3-M7', 25000, 'cot-5', 'C3-A-CASH',     'CASH',          '2026-04-01'),
+    (gen_random_uuid()::VARCHAR, 'C3-M8', 25000, 'cot-5', 'C3-A-CASH',     'CASH',          '2026-04-01'),
+    -- Mai
+    (gen_random_uuid()::VARCHAR, 'C3-M1', 25000, 'cot-5', 'C3-A-BANK-1',   'BANK_TRANSFER', '2026-05-01'),
+    (gen_random_uuid()::VARCHAR, 'C3-M2', 25000, 'cot-5', 'C3-A-BANK-1',   'BANK_TRANSFER', '2026-05-01'),
+    (gen_random_uuid()::VARCHAR, 'C3-M3', 15000, 'cot-5', 'C3-A-MOBILE-1', 'MOBILE_BANKING','2026-05-01'),
+    (gen_random_uuid()::VARCHAR, 'C3-M4', 15000, 'cot-5', 'C3-A-MOBILE-1', 'MOBILE_BANKING','2026-05-01'),
+    (gen_random_uuid()::VARCHAR, 'C3-M5', 20000, 'cot-5', 'C3-A-BANK-2',   'BANK_TRANSFER', '2026-05-01'),
+    (gen_random_uuid()::VARCHAR, 'C3-M6', 25000, 'cot-5', 'C3-A-BANK-2',   'BANK_TRANSFER', '2026-05-01'),
+    (gen_random_uuid()::VARCHAR, 'C3-M7', 5000,  'cot-5', 'C3-A-CASH',     'CASH',          '2026-05-01'),
+    (gen_random_uuid()::VARCHAR, 'C3-M8', 5000,  'cot-5', 'C3-A-CASH',     'CASH',          '2026-05-01');
+
+-- Soldes col-3 :
+--   CASH     : 25k + 25k (avr) + 5k + 5k (mai)                     =  60 000  ✓
+--   BANK-1   : 25k×4 (avr)    + 25k + 25k (mai)                    = 150 000  ✓  (corrigé : était 100 000)
+--   BANK-2   : 25k + 25k (avr) + 20k + 25k (mai)                   =  95 000  ✓
+--   MOBILE-1 : 15k + 15k (mai)                                      =  30 000  ✓
+UPDATE accounts SET balance = 60000  WHERE id = 'C3-A-CASH';
+UPDATE accounts SET balance = 150000 WHERE id = 'C3-A-BANK-1';
+UPDATE accounts SET balance = 95000  WHERE id = 'C3-A-BANK-2';
+UPDATE accounts SET balance = 30000  WHERE id = 'C3-A-MOBILE-1';
+
+-- ============================================================
+-- NOUVEAUX MEMBRES JUNIORS (Tableaux 18, 19, 20)
+-- ============================================================
+
+-- col-1 : 4 juniors (Tableau 18)
+INSERT INTO members (id, last_name, first_name, birth_date, gender, address, profession, phone, email)
+VALUES
+    ('C1-NJ1', 'Nouveau1', 'Junior1', '2000-01-01', 'MALE',   'Lot X Ambato', 'Agriculteur', '0300000001', 'junior1.col1@fed-agri.mg'),
+    ('C1-NJ2', 'Nouveau2', 'Junior2', '2001-02-02', 'FEMALE', 'Lot X Ambato', 'Agriculteur', '0300000002', 'junior2.col1@fed-agri.mg'),
+    ('C1-NJ3', 'Nouveau3', 'Junior3', '2002-03-03', 'MALE',   'Lot X Ambato', 'Agriculteur', '0300000003', 'junior3.col1@fed-agri.mg'),
+    ('C1-NJ4', 'Nouveau4', 'Junior4', '2003-04-04', 'FEMALE', 'Lot X Ambato', 'Agriculteur', '0300000004', 'junior4.col1@fed-agri.mg');
+
+INSERT INTO memberships (id, member_id, collectivity_id, occupation, start_date)
+VALUES
+    (gen_random_uuid()::VARCHAR, 'C1-NJ1', 'col-1', 'JUNIOR', '2026-04-01'),
+    (gen_random_uuid()::VARCHAR, 'C1-NJ2', 'col-1', 'JUNIOR', '2026-04-01'),
+    (gen_random_uuid()::VARCHAR, 'C1-NJ3', 'col-1', 'JUNIOR', '2026-05-01'),
+    (gen_random_uuid()::VARCHAR, 'C1-NJ4', 'col-1', 'JUNIOR', '2026-06-01');
+
+INSERT INTO referals (id, member_id, referee_id) VALUES
+                                                     (gen_random_uuid()::VARCHAR, 'C1-NJ1', 'C1-M1'),
+                                                     (gen_random_uuid()::VARCHAR, 'C1-NJ1', 'C1-M2'),
+                                                     (gen_random_uuid()::VARCHAR, 'C1-NJ2', 'C1-M1'),
+                                                     (gen_random_uuid()::VARCHAR, 'C1-NJ2', 'C1-M2'),
+                                                     (gen_random_uuid()::VARCHAR, 'C1-NJ3', 'C1-M1'),
+                                                     (gen_random_uuid()::VARCHAR, 'C1-NJ3', 'C1-M2'),
+                                                     (gen_random_uuid()::VARCHAR, 'C1-NJ4', 'C1-M1'),
+                                                     (gen_random_uuid()::VARCHAR, 'C1-NJ4', 'C1-M2');
+
+-- col-2 : 3 juniors (Tableau 19)
+INSERT INTO members (id, last_name, first_name, birth_date, gender, address, profession, phone, email)
+VALUES
+    ('C2-NJ1', 'Nouveau1', 'Junior1', '2000-01-01', 'MALE',   'Lot Y Ambato', 'Agriculteur', '0300000011', 'junior1.col2@fed-agri.mg'),
+    ('C2-NJ2', 'Nouveau2', 'Junior2', '2001-02-02', 'FEMALE', 'Lot Y Ambato', 'Agriculteur', '0300000012', 'junior2.col2@fed-agri.mg'),
+    ('C2-NJ3', 'Nouveau3', 'Junior3', '2002-03-03', 'MALE',   'Lot Y Ambato', 'Agriculteur', '0300000013', 'junior3.col2@fed-agri.mg');
+
+INSERT INTO memberships (id, member_id, collectivity_id, occupation, start_date)
+VALUES
+    (gen_random_uuid()::VARCHAR, 'C2-NJ1', 'col-2', 'JUNIOR', '2026-03-01'),
+    (gen_random_uuid()::VARCHAR, 'C2-NJ2', 'col-2', 'JUNIOR', '2026-03-01'),
+    (gen_random_uuid()::VARCHAR, 'C2-NJ3', 'col-2', 'JUNIOR', '2026-03-01');
+
+-- Parrains des juniors col-2 : C1-M1 et C1-M2 (Tableau 19)
+INSERT INTO referals (id, member_id, referee_id) VALUES
+                                                     (gen_random_uuid()::VARCHAR, 'C2-NJ1', 'C1-M1'),
+                                                     (gen_random_uuid()::VARCHAR, 'C2-NJ1', 'C1-M2'),
+                                                     (gen_random_uuid()::VARCHAR, 'C2-NJ2', 'C1-M1'),
+                                                     (gen_random_uuid()::VARCHAR, 'C2-NJ2', 'C1-M2'),
+                                                     (gen_random_uuid()::VARCHAR, 'C2-NJ3', 'C1-M1'),
+                                                     (gen_random_uuid()::VARCHAR, 'C2-NJ3', 'C1-M2');
+
+-- col-3 : 6 juniors (Tableau 20)
+INSERT INTO members (id, last_name, first_name, birth_date, gender, address, profession, phone, email)
+VALUES
+    ('C3-NJ1', 'Nouveau1', 'Junior1', '2000-01-01', 'MALE',   'Lot Z Antsirabe', 'Apiculteur', '0300000021', 'junior1.col3@fed-agri.mg'),
+    ('C3-NJ2', 'Nouveau2', 'Junior2', '2001-02-02', 'FEMALE', 'Lot Z Antsirabe', 'Apiculteur', '0300000022', 'junior2.col3@fed-agri.mg'),
+    ('C3-NJ3', 'Nouveau3', 'Junior3', '2002-03-03', 'MALE',   'Lot Z Antsirabe', 'Apiculteur', '0300000023', 'junior3.col3@fed-agri.mg'),
+    ('C3-NJ4', 'Nouveau4', 'Junior4', '2003-04-04', 'FEMALE', 'Lot Z Antsirabe', 'Apiculteur', '0300000024', 'junior4.col3@fed-agri.mg'),
+    ('C3-NJ5', 'Nouveau5', 'Junior5', '2004-05-05', 'MALE',   'Lot Z Antsirabe', 'Apiculteur', '0300000025', 'junior5.col3@fed-agri.mg'),
+    ('C3-NJ6', 'Nouveau6', 'Junior6', '2005-06-06', 'FEMALE', 'Lot Z Antsirabe', 'Apiculteur', '0300000026', 'junior6.col3@fed-agri.mg');
+
+INSERT INTO memberships (id, member_id, collectivity_id, occupation, start_date)
+VALUES
+    (gen_random_uuid()::VARCHAR, 'C3-NJ1', 'col-3', 'JUNIOR', '2026-01-01'),
+    (gen_random_uuid()::VARCHAR, 'C3-NJ2', 'col-3', 'JUNIOR', '2026-02-01'),
+    (gen_random_uuid()::VARCHAR, 'C3-NJ3', 'col-3', 'JUNIOR', '2026-02-01'),
+    (gen_random_uuid()::VARCHAR, 'C3-NJ4', 'col-3', 'JUNIOR', '2026-03-01'),
+    (gen_random_uuid()::VARCHAR, 'C3-NJ5', 'col-3', 'JUNIOR', '2026-03-01'),
+    (gen_random_uuid()::VARCHAR, 'C3-NJ6', 'col-3', 'JUNIOR', '2026-03-01');
+
+-- Parrains des juniors col-3 : C3-M1 et C3-M2 (Tableau 20)
+INSERT INTO referals (id, member_id, referee_id) VALUES
+                                                     (gen_random_uuid()::VARCHAR, 'C3-NJ1', 'C3-M1'),
+                                                     (gen_random_uuid()::VARCHAR, 'C3-NJ1', 'C3-M2'),
+                                                     (gen_random_uuid()::VARCHAR, 'C3-NJ2', 'C3-M1'),
+                                                     (gen_random_uuid()::VARCHAR, 'C3-NJ2', 'C3-M2'),
+                                                     (gen_random_uuid()::VARCHAR, 'C3-NJ3', 'C3-M1'),
+                                                     (gen_random_uuid()::VARCHAR, 'C3-NJ3', 'C3-M2'),
+                                                     (gen_random_uuid()::VARCHAR, 'C3-NJ4', 'C3-M1'),
+                                                     (gen_random_uuid()::VARCHAR, 'C3-NJ4', 'C3-M2'),
+                                                     (gen_random_uuid()::VARCHAR, 'C3-NJ5', 'C3-M1'),
+                                                     (gen_random_uuid()::VARCHAR, 'C3-NJ5', 'C3-M2'),
+                                                     (gen_random_uuid()::VARCHAR, 'C3-NJ6', 'C3-M1'),
+                                                     (gen_random_uuid()::VARCHAR, 'C3-NJ6', 'C3-M2');                                                                                                                                   ('trx-2-8', 'col-2', 'C2-M8', 'IN', 60000, '2026-01-01', 'MOBILE_BANKING', 'C2-A-MOBILE-1');

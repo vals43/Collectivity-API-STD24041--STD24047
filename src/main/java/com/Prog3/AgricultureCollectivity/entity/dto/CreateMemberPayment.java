@@ -15,4 +15,5 @@ public class CreateMemberPayment {
     private String membershipFeeIdentifier;
     private String accountCreditedIdentifier;
     private PaymentMode paymentMode;
+    private String paymentDate;
 }

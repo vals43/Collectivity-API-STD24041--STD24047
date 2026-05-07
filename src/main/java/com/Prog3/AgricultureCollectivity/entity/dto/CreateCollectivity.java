@@ -13,6 +13,7 @@ import java.util.List;
 @AllArgsConstructor
 public class CreateCollectivity {
     private String location;
+    private String speciality;
     private List<String> members;
     private boolean federationApproval;
     private CreateCollectivityStructure structure;

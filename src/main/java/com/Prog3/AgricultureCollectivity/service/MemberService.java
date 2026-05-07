@@ -74,7 +74,7 @@ public class MemberService {
             // Handle registration fee payment (50,000 MGA)
             if (dto.isRegistrationFeePaid()) {
                 createMemberPaymentTransaction(savedMember.getId(), dto.getCollectivityIdentifier(),
-                        50000.0, PaymentMode.MOBILE_BANKING, "Registration fee");
+                        50000.0, PaymentMode.CASH, "Registration fee");
             }
 
             // Handle membership dues payment
@@ -82,12 +82,12 @@ public class MemberService {
                 List<CotisationPlan> activePlans = cotisationPlanRepository
                         .findByCollectivityId(dto.getCollectivityIdentifier())
                         .stream()
-                        .filter(plan -> plan.getStatus() == ActivityStatus.ACTIVE)
+                        .filter(plan -> "ACTIVE".equals(plan.getStatus()))
                         .toList();
 
                 for (CotisationPlan plan : activePlans) {
                     createMemberPaymentTransaction(savedMember.getId(), dto.getCollectivityIdentifier(),
-                            plan.getAmount(), PaymentMode.MOBILE_BANKING,
+                            plan.getAmount(), PaymentMode.CASH,
                             "Membership dues: " + plan.getLabel());
                 }
             }

@@ -35,7 +35,7 @@ public class CollectivityService {
             validator.validateCollectivityCreation(request);
 
             Collectivity collectivity = Collectivity.builder()
-                    .speciality("Agriculture")
+                    .speciality(request.getSpeciality() != null ? request.getSpeciality() : "Agriculture")
                     .federationApproval(request.isFederationApproval())
                     .authorizationDate(LocalDate.now())
                     .location(request.getLocation())

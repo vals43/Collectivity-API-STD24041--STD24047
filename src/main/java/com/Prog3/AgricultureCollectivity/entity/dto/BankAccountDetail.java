@@ -16,8 +16,8 @@ public class BankAccountDetail {
     private Double amount;
     private String holderName;
     private Bank bankName;
-    private Integer bankCode;
-    private Integer bankBranchCode;
-    private Integer bankAccountNumber;
-    private Integer bankAccountKey;
+    private String bankCode;
+    private String bankBranchCode;
+    private String bankAccountNumber;
+    private String bankAccountKey;
 }
