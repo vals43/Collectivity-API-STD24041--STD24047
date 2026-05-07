@@ -2,14 +2,15 @@ package com.Prog3.AgricultureCollectivity.service;
 
 import com.Prog3.AgricultureCollectivity.entity.*;
 import com.Prog3.AgricultureCollectivity.entity.dto.*;
-import com.Prog3.AgricultureCollectivity.exception.BadRequestException;
 import com.Prog3.AgricultureCollectivity.exception.NotFoundException;
 import com.Prog3.AgricultureCollectivity.mapper.Mapper;
 import com.Prog3.AgricultureCollectivity.repository.CollectivityRepository;
 import com.Prog3.AgricultureCollectivity.repository.CotisationPlanRepository;
 import com.Prog3.AgricultureCollectivity.validator.CollectivityValidator;
 import lombok.AllArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.time.Instant;
 import java.time.LocalDate;
@@ -61,27 +62,27 @@ public class CollectivityService {
 
     public CollectivityResponse assignIdentity(String id, CollectivityInformation request) {
         if (request.getNumber() == null || request.getNumber().trim().isEmpty()) {
-            throw new BadRequestException("Number is required");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Number is required");
         }
         if (request.getName() == null || request.getName().trim().isEmpty()) {
-            throw new BadRequestException("Name is required");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Name is required");
         }
 
         Collectivity collectivity = repository.findById(id);
         if (collectivity == null) {
-            throw new NotFoundException("Collectivity not found with id: " + id);
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Collectivity not found with id: " + id);
         }
 
         if (collectivity.getName() != null && !collectivity.getName().isBlank()
                 && collectivity.getNumber() != null && !collectivity.getNumber().isBlank()) {
-            throw new BadRequestException("Collectivity identity already assigned and cannot be modified");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Collectivity identity already assigned and cannot be modified");
         }
 
         if (repository.existsByNumber(request.getNumber())) {
-            throw new BadRequestException("Collectivity number already exists: " + request.getNumber());
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Collectivity number already exists: " + request.getNumber());
         }
         if (repository.existsByName(request.getName())) {
-            throw new BadRequestException("Collectivity name already exists: " + request.getName());
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Collectivity name already exists: " + request.getName());
         }
 
         repository.assignIdentity(id, request.getNumber(), request.getName());
@@ -92,7 +93,7 @@ public class CollectivityService {
     public Collectivity getCollectivityById(String id) {
         Collectivity collectivity = repository.findById(id);
         if (collectivity == null) {
-            throw new NotFoundException("Collectivity not found with id: " + id);
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Collectivity not found with id: " + id);
         }
         return collectivity;
     }
@@ -105,7 +106,7 @@ public class CollectivityService {
         }
 
         if (from.isAfter(to)) {
-            throw new BadRequestException("'from' date must be before or equal to 'to' date");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "'from' date must be before or equal to 'to' date");
         }
 
         List<Transaction> transactions = repository.findTransactionsByCollectivityIdAndDateRange(id, from, to);
@@ -118,7 +119,7 @@ public class CollectivityService {
     public CollectivityFinancialAccountResponse getFinancialAccounts(String collectivityId, Instant at) {
         Collectivity collectivity = repository.findById(collectivityId);
         if (collectivity == null) {
-            throw new NotFoundException("Collectivity not found with id: " + collectivityId);
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Collectivity not found with id: " + collectivityId);
         }
 
         Map<String, Account> accounts = repository.loadAccountsWithTransactions(collectivityId, at);
@@ -145,7 +146,7 @@ public class CollectivityService {
     public List<MembershipFeeResponse> getMembershipFees(String collectivityId) {
         Collectivity collectivity = repository.findById(collectivityId);
         if (collectivity == null) {
-            throw new NotFoundException("Collectivity not found with id: " + collectivityId);
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Collectivity not found with id: " + collectivityId);
         }
 
         List<CotisationPlan> plans = cotisationPlanRepository.findByCollectivityId(collectivityId);
@@ -173,10 +174,10 @@ public class CollectivityService {
 
         for (CreateMembershipFee createFee : createMembershipFees) {
             if (createFee.getFrequency() == null) {
-                throw new BadRequestException("Frequency is required");
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Frequency is required");
             }
             if (createFee.getAmount() == null || createFee.getAmount() < 0) {
-                throw new BadRequestException("Amount must be greater than or equal to 0");
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Amount must be greater than or equal to 0");
             }
 
             CotisationPlan plan = CotisationPlan.builder()

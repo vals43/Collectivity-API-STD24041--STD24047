@@ -22,7 +22,7 @@ public class CollectivityIT {
 
         var exceptionMessage = exception.getMessage();
         log.info(exceptionMessage);
-        assertTrue(exceptionMessage.contains("HTTP Error: 404"));
+        assertTrue(exceptionMessage.contains("404 NOT_FOUND"));
     }
 
     @Test
@@ -87,7 +87,7 @@ public class CollectivityIT {
                 () -> apiClient.put("/collectivities/" + id + "/informations", payload, Collectivity.class));
         log.info(exception.getMessage());
 
-        assertTrue(exception.getMessage().contains("HTTP Error: 400"));
+        assertTrue(exception.getMessage().contains("400 BAD_REQUEST"));
         assertTrue(exception.getMessage().contains("already assigned"));
     }
 
@@ -254,8 +254,8 @@ public class CollectivityIT {
                         new ParameterizedTypeReference<List<CollectivityActivity>>() {
                         }));
 
-        assertTrue(exception.getMessage().contains("HTTP Error: 400"));
         log.info(exception.getMessage());
+        assertTrue(exception.getMessage().contains("400 BAD_REQUEST"));
     }
 
     @Test

@@ -5,13 +5,13 @@ import com.Prog3.AgricultureCollectivity.entity.dto.*;
 import com.Prog3.AgricultureCollectivity.entity.enums.ActivityStatus;
 import com.Prog3.AgricultureCollectivity.entity.enums.PaymentMode;
 import com.Prog3.AgricultureCollectivity.entity.enums.TransactionType;
-import com.Prog3.AgricultureCollectivity.exception.BadRequestException;
-import com.Prog3.AgricultureCollectivity.exception.NotFoundException;
 import com.Prog3.AgricultureCollectivity.mapper.Mapper;
 import com.Prog3.AgricultureCollectivity.repository.*;
 import com.Prog3.AgricultureCollectivity.validator.MemberValidator;
 import lombok.AllArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -39,7 +39,7 @@ public class MemberService {
             // Check if collectivity exists
             Collectivity collectivity = collectivityRepository.findById(dto.getCollectivityIdentifier());
             if (collectivity == null) {
-                throw new NotFoundException("Collectivity not found with id: " + dto.getCollectivityIdentifier());
+                throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Collectivity not found with id: " + dto.getCollectivityIdentifier());
             }
 
             // Create member entity
@@ -94,7 +94,7 @@ public class MemberService {
 
             // Fetch the member with referees for response
             Member memberWithReferees = memberRepository.findById(savedMember.getId())
-                    .orElseThrow(() -> new NotFoundException("Member not found after creation"));
+                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Member not found after creation"));
 
             responses.add(mapper.toMemberResponse(memberWithReferees));
         }
@@ -105,37 +105,37 @@ public class MemberService {
     public List<MemberPaymentResponse> createPayments(String memberId, List<CreateMemberPayment> requests) {
         // Verify member exists
         Member member = memberRepository.findById(memberId)
-                .orElseThrow(() -> new NotFoundException("Member not found with id: " + memberId));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Member not found with id: " + memberId));
 
         List<MemberPaymentResponse> responses = new ArrayList<>();
 
         for (CreateMemberPayment request : requests) {
             // Validate payment request
             if (request.getAmount() == null || request.getAmount() <= 0) {
-                throw new BadRequestException("Payment amount must be greater than 0");
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Payment amount must be greater than 0");
             }
             if (request.getPaymentMode() == null) {
-                throw new BadRequestException("Payment mode is required");
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Payment mode is required");
             }
 
             // Verify membership fee exists if provided
             if (request.getMembershipFeeIdentifier() != null) {
                 cotisationPlanRepository.findById(request.getMembershipFeeIdentifier())
-                        .orElseThrow(() -> new NotFoundException(
+                        .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
                                 "Membership fee not found with id: " + request.getMembershipFeeIdentifier()));
             }
 
             // Verify account exists if provided
             if (request.getAccountCreditedIdentifier() != null) {
                 accountRepository.findById(request.getAccountCreditedIdentifier())
-                        .orElseThrow(() -> new NotFoundException(
+                        .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
                                 "Account not found with id: " + request.getAccountCreditedIdentifier()));
             }
 
             // Get member's collectivity
             String collectivityId = memberRepository.findCollectivityIdByMemberId(memberId);
             if (collectivityId == null) {
-                throw new NotFoundException("Member is not assigned to any collectivity");
+                throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Member is not assigned to any collectivity");
             }
 
             // Create transaction for payment
@@ -177,6 +177,6 @@ public class MemberService {
         return accounts.values().stream()
                 .filter(account -> account.getCashAccount() != null)
                 .findFirst()
-                .orElseThrow(() -> new NotFoundException("No cash account found for collectivity: " + collectivityId));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "No cash account found for collectivity: " + collectivityId));
     }
 }
