@@ -7,6 +7,9 @@ import org.springframework.web.client.RestTemplate;
 
 public class ApiClient {
     private static final String BASE_URL = "http://localhost:8080";
+    private static final String API_KEY_HEADER = "x-api-key";
+    private static final String API_KEY_VALUE = "agri-secure-key";
+
     private final RestTemplate restTemplate;
     private final String baseUrl;
 
@@ -112,6 +115,8 @@ public class ApiClient {
     private HttpEntity<?> buildEntity(Object body) {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
+        // ✅ AJOUTER LA CLÉ API ICI
+        headers.set(API_KEY_HEADER, API_KEY_VALUE);
         return new HttpEntity<>(body, headers);
     }
 
