@@ -519,3 +519,150 @@ VALUES
     ('C3-NJ4', 'C3-M1', NULL), ('C3-NJ4', 'C3-M2', NULL),
     ('C3-NJ5', 'C3-M1', NULL), ('C3-NJ5', 'C3-M2', NULL),
     ('C3-NJ6', 'C3-M1', NULL), ('C3-NJ6', 'C3-M2', NULL);
+
+
+
+
+-- ============================================================
+-- DONNÉES BONUS — Activités et Présences
+-- Évaluation 6 Mai 2026
+-- Tables : activity, activity_member_occupation, activity_attendance
+-- ============================================================
+
+-- ============================================================
+-- ACTIVITÉS (Tableaux 21, 22, 23)
+-- Colonnes : id, id_collectivity, label, activity_type,
+--            executive_date, week_ordinal, day_of_week, creation_date
+-- Pour les activités récurrentes : executive_date = NULL
+-- Pour l'activité ponctuelle    : week_ordinal et day_of_week = NULL
+-- ============================================================
+
+INSERT INTO activity (id, id_collectivity, label, activity_type, executive_date, week_ordinal, day_of_week, creation_date)
+VALUES
+    -- Collectivité 1 (Tableau 21)
+    ('act-1', 'col-1', 'AG1',            'MEETING',  NULL,         1, 'SA', CURRENT_DATE), -- 1er samedi
+    ('act-2', 'col-1', 'Formation base', 'TRAINING', NULL,         2, 'SU', CURRENT_DATE), -- 2è dimanche
+
+    -- Collectivité 2 (Tableau 22)
+    ('act-3', 'col-2', 'AG2',              'MEETING',  NULL,         1, 'SU', CURRENT_DATE), -- 1er dimanche
+    ('act-4', 'col-2', 'Formation base',   'TRAINING', NULL,         3, 'SU', CURRENT_DATE), -- 3è dimanche
+    ('act-5', 'col-2', 'Perfectionnement', 'OTHER',    '2026-04-30', NULL, NULL, CURRENT_DATE), -- ponctuelle
+
+    -- Collectivité 3 (Tableau 23)
+    ('act-6', 'col-3', 'AG3',            'MEETING',  NULL,         1, 'FR', CURRENT_DATE), -- 1er vendredi
+    ('act-7', 'col-3', 'Formation base', 'TRAINING', NULL,         4, 'WE', CURRENT_DATE); -- 4è mercredi
+
+-- ============================================================
+-- OCCUPATIONS CONCERNÉES PAR ACTIVITÉ
+-- Table : activity_member_occupation
+-- PK : (id_activity, occupation)
+-- ============================================================
+
+-- act-1 : AG1 col-1 → toutes les occupations
+INSERT INTO activity_member_occupation (id_activity, occupation) VALUES
+                                                                     ('act-1', 'JUNIOR'),
+                                                                     ('act-1', 'SENIOR'),
+                                                                     ('act-1', 'SECRETARY'),
+                                                                     ('act-1', 'TREASURER'),
+                                                                     ('act-1', 'VICE_PRESIDENT'),
+                                                                     ('act-1', 'PRESIDENT');
+
+-- act-2 : Formation base col-1 → JUNIOR uniquement
+INSERT INTO activity_member_occupation (id_activity, occupation) VALUES
+    ('act-2', 'JUNIOR');
+
+-- act-3 : AG2 col-2 → toutes les occupations
+INSERT INTO activity_member_occupation (id_activity, occupation) VALUES
+                                                                     ('act-3', 'JUNIOR'),
+                                                                     ('act-3', 'SENIOR'),
+                                                                     ('act-3', 'SECRETARY'),
+                                                                     ('act-3', 'TREASURER'),
+                                                                     ('act-3', 'VICE_PRESIDENT'),
+                                                                     ('act-3', 'PRESIDENT');
+
+-- act-4 : Formation base col-2 → JUNIOR uniquement
+INSERT INTO activity_member_occupation (id_activity, occupation) VALUES
+    ('act-4', 'JUNIOR');
+
+-- act-5 : Perfectionnement col-2 → SENIOR uniquement
+INSERT INTO activity_member_occupation (id_activity, occupation) VALUES
+    ('act-5', 'SENIOR');
+
+-- act-6 : AG3 col-3 → toutes les occupations
+INSERT INTO activity_member_occupation (id_activity, occupation) VALUES
+                                                                     ('act-6', 'JUNIOR'),
+                                                                     ('act-6', 'SENIOR'),
+                                                                     ('act-6', 'SECRETARY'),
+                                                                     ('act-6', 'TREASURER'),
+                                                                     ('act-6', 'VICE_PRESIDENT'),
+                                                                     ('act-6', 'PRESIDENT');
+
+-- act-7 : Formation base col-3 → JUNIOR uniquement
+INSERT INTO activity_member_occupation (id_activity, occupation) VALUES
+    ('act-7', 'JUNIOR');
+
+-- ============================================================
+-- PRÉSENCES (Tableaux 24 à 30)
+-- Table : activity_attendance
+-- Colonnes : id, id_activity, id_member, attendance_status
+-- Valeurs : ATTENDED | MISSING | UNDEFINED
+-- UNIQUE (id_activity, id_member) → une ligne par membre par activité
+-- ⚠️  act-1 a deux occurrences (mars et avril) mais id_activity est
+--     le même → on ne peut pas insérer deux fois le même membre
+--     sur act-1. Le PDF donne des fiches par date, mais la table
+--     ne stocke pas la date de présence séparément.
+--     → On insère la dernière fiche connue (avril, Tableau 25),
+--       qui est la plus récente. Adapter si ton archi gère les
+--       occurrences avec une colonne executive_date sur attendance.
+-- ============================================================
+
+-- act-1 : AG1 col-1 — fiche avril 2026 (Tableau 25)
+INSERT INTO activity_attendance (id, id_activity, id_member, attendance_status)
+VALUES
+    (gen_random_uuid()::VARCHAR, 'act-1', 'C1-M1', 'ATTENDED'),
+    (gen_random_uuid()::VARCHAR, 'act-1', 'C1-M2', 'ATTENDED'),
+    (gen_random_uuid()::VARCHAR, 'act-1', 'C1-M3', 'MISSING'),
+    (gen_random_uuid()::VARCHAR, 'act-1', 'C1-M4', 'MISSING'),
+    (gen_random_uuid()::VARCHAR, 'act-1', 'C1-M5', 'ATTENDED'),
+    (gen_random_uuid()::VARCHAR, 'act-1', 'C1-M6', 'ATTENDED'),
+    (gen_random_uuid()::VARCHAR, 'act-1', 'C1-M7', 'ATTENDED'),
+    (gen_random_uuid()::VARCHAR, 'act-1', 'C1-M8', 'ATTENDED');
+
+-- act-3 : AG2 col-2 — fiche avril 2026 (Tableau 27)
+INSERT INTO activity_attendance (id, id_activity, id_member, attendance_status)
+VALUES
+    (gen_random_uuid()::VARCHAR, 'act-3', 'C1-M1', 'ATTENDED'),
+    (gen_random_uuid()::VARCHAR, 'act-3', 'C1-M2', 'ATTENDED'),
+    (gen_random_uuid()::VARCHAR, 'act-3', 'C1-M3', 'MISSING'),
+    (gen_random_uuid()::VARCHAR, 'act-3', 'C1-M4', 'ATTENDED'),
+    (gen_random_uuid()::VARCHAR, 'act-3', 'C1-M5', 'ATTENDED'),
+    (gen_random_uuid()::VARCHAR, 'act-3', 'C1-M6', 'ATTENDED'),
+    (gen_random_uuid()::VARCHAR, 'act-3', 'C1-M7', 'ATTENDED'),
+    (gen_random_uuid()::VARCHAR, 'act-3', 'C1-M8', 'MISSING');
+
+-- act-5 : Perfectionnement col-2 — 30/04/2026 (Tableau 28)
+INSERT INTO activity_attendance (id, id_activity, id_member, attendance_status)
+VALUES
+    (gen_random_uuid()::VARCHAR, 'act-5', 'C1-M1', 'ATTENDED'),
+    (gen_random_uuid()::VARCHAR, 'act-5', 'C1-M2', 'ATTENDED'),
+    (gen_random_uuid()::VARCHAR, 'act-5', 'C1-M3', 'ATTENDED'),
+    (gen_random_uuid()::VARCHAR, 'act-5', 'C1-M4', 'MISSING'),
+    (gen_random_uuid()::VARCHAR, 'act-5', 'C1-M5', 'UNDEFINED'),
+    (gen_random_uuid()::VARCHAR, 'act-5', 'C1-M6', 'UNDEFINED'),
+    (gen_random_uuid()::VARCHAR, 'act-5', 'C1-M7', 'UNDEFINED'),
+    (gen_random_uuid()::VARCHAR, 'act-5', 'C1-M8', 'UNDEFINED');
+
+-- act-6 : AG3 col-3 — fiche avril 2026 (Tableau 30)
+-- ⚠️  C1-M1 apparaît aussi (membre d'une autre collectivité présent)
+--     → à insérer également selon le contexte métier (présence hors collectivité)
+INSERT INTO activity_attendance (id, id_activity, id_member, attendance_status)
+VALUES
+    (gen_random_uuid()::VARCHAR, 'act-6', 'C3-M1', 'ATTENDED'),
+    (gen_random_uuid()::VARCHAR, 'act-6', 'C3-M2', 'ATTENDED'),
+    (gen_random_uuid()::VARCHAR, 'act-6', 'C3-M3', 'MISSING'),
+    (gen_random_uuid()::VARCHAR, 'act-6', 'C3-M4', 'MISSING'),
+    (gen_random_uuid()::VARCHAR, 'act-6', 'C3-M5', 'ATTENDED'),
+    (gen_random_uuid()::VARCHAR, 'act-6', 'C3-M6', 'ATTENDED'),
+    (gen_random_uuid()::VARCHAR, 'act-6', 'C3-M7', 'MISSING'),
+    (gen_random_uuid()::VARCHAR, 'act-6', 'C3-M8', 'ATTENDED'),
+    (gen_random_uuid()::VARCHAR, 'act-6', 'C1-M1', 'ATTENDED'); -- membre externe
