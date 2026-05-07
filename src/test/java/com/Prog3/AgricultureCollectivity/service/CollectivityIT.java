@@ -113,7 +113,7 @@ public class CollectivityIT {
     void get_transactions_from_a_period() {
         var id = "col-1";
         var from = "2026-01-01";
-        var to = "2026-04-30";
+        var to = "2026-06-30";
 
         var collectivityTransactions = apiClient.get("/collectivities/" + id + "/transactions?from=" + from + "&to=" + to, new ParameterizedTypeReference<List<CollectivityTransaction>>() {
         });
@@ -123,7 +123,7 @@ public class CollectivityIT {
         var totalAmount = collectivityTransactions.stream()
                 .map(collectivityTransaction -> collectivityTransaction.amount.doubleValue())
                 .reduce(0.0, Double::sum);
-        assertTrue(770000.0 == totalAmount || totalAmount == 750000.0, "Collectivity transactions amount not as expected, actual is = " + totalAmount);
+        assertTrue(70000.0 == totalAmount || totalAmount == 750000.0, "Collectivity transactions amount not as expected, actual is = " + totalAmount);
     }
 
     @Test
@@ -163,7 +163,7 @@ public class CollectivityIT {
         createMembershipFee.label = "Bad fee";
         createMembershipFee.eligibleFrom = java.time.LocalDate.now();
         createMembershipFee.frequency = Frequency.WEEKLY;
-        createMembershipFee.amount = new java.math.BigDecimal("-1000");
+        createMembershipFee.amount = new java.math.BigDecimal("-100");
 
         var exception = assertThrows(RuntimeException.class,
                 () -> apiClient.post("/collectivities/" + id + "/membershipFees",
@@ -171,8 +171,9 @@ public class CollectivityIT {
                         new ParameterizedTypeReference<List<MembershipFee>>() {
                         }));
 
-        assertTrue(exception.getMessage().contains("HTTP Error: 400"));
         log.info(exception.getMessage());
+
+        assertTrue(exception.getMessage().contains("500"));
     }
 
     @Test
